@@ -19,12 +19,21 @@ class ShipCounter:
     Two_deck = 3
     One_deck = 4
 
+class color:
+    gray = 0xF0F0F0
+    blue_dark = 0x00008B
+    blue_ligth = 0x5F9EA0
+    orange = 0xFF8C00
+    red = 0xFF0000
+    black = 0x000000
+
+
 class pair:
     x = -1
     y = -1
-    def __init__(self, x0, y0):
-        x = x0
-        y = y0
+    def __init__(self, r):
+        self.x = r[0]
+        self.y = r[1]
 
 class MessageBox:
     @classmethod
@@ -97,7 +106,7 @@ class Ship:
         
         return not_filled
 
-    def get_state(self):
+    def GetState(self):
         #считаем число попаданий
         hitCount = 0
         for i in range (self._size):
@@ -158,17 +167,18 @@ class gameBoard:
     _3DeckShipCount = 2; # число 3-х палубных
     _2DeckShipCount = 3; # число 2-х палубных
     _1DeckShipCount = 4; # число 1-х палубных
-    shipsCount = _4DeckShipCount + _3DeckShipCount + _2DeckShipCount + _1DeckShipCount; # число кораблей
+    _shipsCount = _4DeckShipCount + _3DeckShipCount + _2DeckShipCount + _1DeckShipCount; # число кораблей
     _cells = [[]] # клетки игрового поля
     _ships = [] # корабли
     count = 0
     count_of_ships = (4, 3, 2, 1)
 
     def __init__(self, x=0,y=0,state=0):
-        for i in range(self._shipsCount + 1):
-            self._ships.append(Ship())
-        for i in range(self._size):
-            self._cells.append([GameBoardCell() for _ in range(self._size)])
+        self._ships = [Ship() for _ in range (self._shipsCount + 1)]
+        self._cells = [[GameBoardCell() for _ in range(self._size)] for __ in range(self._size)]
+
+        #for i in range(self._size):
+        #    self._cells.append([GameBoardCell() for _ in range(self._size)])
 
     def getCell(self, i, j):
         return self._cells[i][j].GetState()
@@ -234,24 +244,187 @@ class gameBoard:
 class game:
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 500
+    FPS = 10
+    pos_myBoard = pair((40,25))
+    pos_hisBoard = pair((560,25))
+    cellSize = 40
+
+    myBoard = None
+    hisBoard = None
+    screen = None
+    clock = None
+    firstset = 0
+    
     """
     def __init__(self):
         ... #init pygame
     """
     @classmethod
     def run(cls):
-        ...
+        pygame.init()
+        game.screen = pygame.display.set_mode((game.SCREEN_WIDTH, game.SCREEN_HEIGHT))
+        
+        game.clock = pygame.time.Clock()
+        game.screen.fill(color.gray)
+
+        
+        game.mainloop()
+
+        pygame.quit()
+
+    @classmethod
+    def mainloop(cls):
+        finished = False
+
+        game.myBoard = gameBoard()
+        game.hisBoard = gameBoard()
+        game.firstset = 0
+        game.hod = game.HOD_NONE
+
+        pygame.draw.rect(game.screen, color.blue_dark,
+            (game.pos_myBoard.x, game.pos_myBoard.y, 
+            game.myBoard._size * game.cellSize,
+            game.myBoard._size * game.cellSize))
+
+        pygame.draw.rect(game.screen, color.blue_dark,
+            (game.pos_hisBoard.x, game.pos_hisBoard.y, 
+            game.hisBoard._size * game.cellSize,
+            game.hisBoard._size * game.cellSize))
+
+        game.draw_hash(game.myBoard, game.pos_myBoard)
+        game.draw_hash(game.hisBoard, game.pos_hisBoard)
+
+        pygame.display.update()
+
+
+        while not finished:
+            act = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    finished = True
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    act = game.mouse_event(event)
+                elif event.type == pygame.KEYDOWN:
+                    game.key_event(event)
+                    act = True
+
+            if game.myBoard.AllShipsDestroyed():
+                ...
+            if game.hisBoard.AllShipsDestroyed():
+                ...
+            
+            if act:
+                # game.screen.fill(color.gray)
+                game.draw_cells()
+                game.clock.tick(game.FPS)
+                pygame.display.update()
+
 
     @classmethod
     def draw_cells(cls):
+        game.screen
+
+    @classmethod
+    def draw_hash(cls, board, boardpos):
+        for i in range(board._size + 1):
+            px = game.cellSize
+            si = board._size
+            x = boardpos.x
+            y = boardpos.y
+            pygame.draw.line(game.screen, color.black, (x + i * px, y + 0), (x + i *px, y + si * px))
+            pygame.draw.line(game.screen, color.black, (x + 0, y + i * px), (x + si * px, y + i * px))
+
+    @classmethod
+    def attack_him(cls, nx, ny):
+        if cls.hisBoard.getCell(ny, nx) == CellState.HitDeck | cls.hisBoard.getCell(ny, nx) == CellState.Miss:
+            return True
+        return cls.hisBoard.Shoot(nx, ny)
+
+    @classmethod
+    def attack_me(cls, nx, ny):
+        if cls.myBoard.getCell(ny, nx) == CellState.HitDeck | cls.myBoard.getCell(ny, nx) == CellState.Miss:
+            return True
+        return cls.myBoard.Shoot(nx, ny)
+
+    @classmethod
+    def mouse_event(cls, event):
+        pos = pair(event.pos)
+        if pos.x > game.pos_hisBoard.x \
+            and pos.x < game.hisBoard._size * game.cellSize + game.pos_hisBoard.x \
+            and pos.y > game.pos_hisBoard.y \
+            and pos.y < game.hisBoard._size * game.cellSize + game.pos_hisBoard.y :
+
+            pos.x-=game.pos_hisBoard.x
+            pos.y-=game.pos_hisBoard.y
+            return game.pole_event(pos.x//game.cellSize,pos.y//game.cellSize, 2)
+            
+            
+        elif pos.x > game.pos_myBoard.x and \
+            pos.x < game.myBoard._size * game.cellSize + game.pos_myBoard.x \
+            and pos.y > game.pos_myBoard.y \
+            and pos.y < game.myBoard._size * game.cellSize + game.pos_myBoard.y :
+            
+            pos.x-=game.pos_myBoard.x
+            pos.y-=game.pos_myBoard.y
+            return game.pole_event(pos.x//game.cellSize,pos.y//game.cellSize, 1)
+             
+
+        return True
+    
+    @classmethod
+    def pole_event(cls, x, y, sender): #pboxClick
+        if game.checkWin():
+            return True
+        if game.firstset < 21:
+            game.prepare()
+            return True
+        elif game.getHod() == game.HOD_MY:
+            if sender == 2:
+                if not game.attack_him(x,y):
+                    game.setLabel("Ход вторго игрока")
+                    return True
+            else:
+                return False
+        elif game.getHod() == game.HOD_HIS:
+            if sender == 1:
+                if not game.attack_me(x,y):
+                    game.setLabel("Ход первого игрока")
+                    return True
+            else:
+                return False
+        if game.checkWin():
+            return True 
+        return False
+
+    @classmethod
+    def prepare(cls):
         ...
 
     @classmethod
-    def attack_my(cls):
-        ...
+    def key_event(cls, event):
+        if event.unicode == '1':
+            ...
 
     @classmethod
-    def attack_me(cls):
-        ...
+    def setLabel(cls, str):
+        print(str)
+        # FIXME
 
+    HOD_NONE = 0
+    HOD_MY = 1
+    HOD_HIS = 2
+    hod = HOD_NONE
+    @classmethod
+    def setHod(cls, ipt):
+        game.hod = ipt
+    @classmethod
+    def getHod(cls):
+        return game.hod
+    
+    @classmethod
+    def checkWin(cls): # FIXME
+        if  game.myBoard.AllShipsDestroyed() or game.myBoard.AllShipsDestroyed():
+            return True
+        return False
 
+game.run()
