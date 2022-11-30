@@ -1,2 +1,4 @@
+player1
+player2
 sub-c-e076c408-faa9-11e5-8916-0619f8945a4f
 pub-c-3d779a5c-675d-411b-b23d-9265381dce0a
