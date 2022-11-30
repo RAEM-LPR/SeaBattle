@@ -10,7 +10,7 @@ from sb_helpers import sb_strings
 from sb_link import sb_link
 from sb_ship import ShipState
 
-#from sb_game_online import Online_game
+from sb_game_online import Online_game
 from sb_game_pvp import Pvp_game
 
 
@@ -39,14 +39,15 @@ class SeaBattle:
         SeaBattle.clock = pygame.time.Clock()
         SeaBattle.font = pygame.font.SysFont('Comic Sans MS', 15)
         SeaBattle.screen.fill(sb_colors.gray)
+        pygame.display.update()
 
         running = True
-        online = False
+        online = True
 
         while running:
             cls.screen.fill(sb_colors.gray)
             if online:
-                pass #SeaBattle.game = Online_game()
+                SeaBattle.game = Online_game()
             else:
                 SeaBattle.game = Pvp_game()
             
@@ -57,10 +58,6 @@ class SeaBattle:
 
     @classmethod
     def mainloop(cls):
-        cls.draw_text(sb_strings.letsbegin)
-        pygame.display.update()
-        #notfinished = True
-
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

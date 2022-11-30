@@ -16,6 +16,8 @@ class Pvp_game(IGame):
         self.firstset = 0
         self.hod = IGame.HOD_NONE
 
+        self.draw_text(sb_strings.letsbegin)
+
     def iteration(self):
         if self.firstset >= GameBoard._shipsCountAll:
                 if self.myBoard.AllShipsDestroyed():
@@ -57,7 +59,7 @@ class Pvp_game(IGame):
             return True
         return False
 
-    def pvp_result_handler(self, result):
+    def position_result_handler(self, result):
         if result == pvp_result.ok:
             self.firstset += 1
             self.draw_text('')#self.screen.fill(sb_colors.gray)
@@ -74,7 +76,7 @@ class Pvp_game(IGame):
         if self.firstset < GameBoard._shipsCount:
             self.myBoard.unhide()
             if sender == 1:
-                self.pvp_result_handler(
+                self.position_result_handler(
                     self.myBoard.PvP(msx, msy, self.rank,
                                         self.hori, self.firstset))
 
@@ -88,7 +90,7 @@ class Pvp_game(IGame):
                 and self.firstset >= GameBoard._shipsCount:
             self.hisBoard.unhide()
             if sender == 2:
-                self.pvp_result_handler(
+                self.position_result_handler(
                     self.hisBoard.PvP(msx, msy, self.rank,
                                     self.hori, self.firstset))
 
@@ -98,11 +100,13 @@ class Pvp_game(IGame):
             self.setHod(IGame.HOD_MY)
 
     def win(cls):
+        cls.gameOver = True
         cls.myBoard.unhide()
         cls.hisBoard.unhide()
         cls.draw_text(sb_strings.win)
 
     def lose(cls):
+        cls.gameOver = True
         cls.myBoard.unhide()
         cls.hisBoard.unhide()
         cls.draw_text(sb_strings.lose)

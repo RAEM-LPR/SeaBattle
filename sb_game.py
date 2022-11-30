@@ -1,19 +1,10 @@
-import pygame
-
-from sb_board import GameBoard
-from sb_board import GameTable
-from sb_board import pvp_result
 from sb_cell import CellState
-from sb_helpers import sb_pair
-from sb_helpers import sb_colors
-from sb_helpers import sb_strings
-from sb_link import sb_link
-from sb_ship import ShipState
-
 
 class IGame:
     myBoard = None
     hisBoard = None
+    
+    gameOver = False
 
     rank = 0
     hori = 0
@@ -33,13 +24,12 @@ class IGame:
 
     def attack_him(cls, nx, ny):
         ...
-    
+
     def attack_me(cls, nx, ny):
         if cls.myBoard.getCell(ny, nx) == CellState.HitDeck \
                 or cls.myBoard.getCell(ny, nx) == CellState.Miss:
             return True
         return cls.myBoard.Shoot(nx, ny)
-
 
     def pole_event(cls, y, x, sender):
         ...
@@ -54,13 +44,13 @@ class IGame:
         return cls.hod
 
     def checkWin(cls):
-        ...# return Game.myBoard.AllShipsDestroyed() or Game.myBoard.AllShipsDestroyed()
+        ...  # return Game.myBoard.AllShipsDestroyed() or Game.myBoard.AllShipsDestroyed()
 
     def win(cls):
-        ...
+        cls.gameOver = True #FIXME
 
     def lose(cls):
-        ...
+        cls.gameOver = True #FIXME
 
     def draw_text(cls, str):
         cls.draw_text_buffer = str

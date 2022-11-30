@@ -127,6 +127,8 @@ class GameBoard:
 class GameTable:
     _size = GameBoard._size
 
+    _shipsCountAll = GameBoard._shipsCount + 1
+
     def __init__(self):
         self.Generate()
 
@@ -143,17 +145,17 @@ class GameTable:
 
     def SetState(self, x, y, state):
         self._cells[y][x].SetState(state)
-    
+
     def kill(self, x, y, cx=-1, cy=-1):
-        self.SetState(x,y,CellState.HitDeck)
-        if x==cx and y ==cy:
+        self.SetState(x, y, CellState.HitDeck)
+        if x == cx and y == cy:
             return
-        for i in range(max(x-1,0),min(x+1,self._size)):
-            for j in range(max(y-1,0),min(y+1,self._size)):
-                if self.getCell(i,j)==CellState.HitDeck:
-                    self.kill(i,j,x,y)#FIXME
-                elif self.getCell(i,j)==CellState.Empty:
-                    self.SetState(i,j,CellState.Miss)
+        for i in range(max(x - 1, 0), min(x + 1, self._size)):
+            for j in range(max(y - 1, 0), min(y + 1, self._size)):
+                if self.getCell(i, j) == CellState.HitDeck:
+                    self.kill(i, j, x, y)
+                elif self.getCell(i, j) == CellState.Empty:
+                    self.SetState(i, j, CellState.Miss)
 
 
 if __name__ == "__main__":
