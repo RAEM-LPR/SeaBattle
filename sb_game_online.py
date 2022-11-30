@@ -13,18 +13,24 @@ from sb_ship import ShipState
 
 import os #ddd FIXME
 
-class Online_game(Game):
-    
-    def mainloop(self, isMain=True):
-        finished = False
-        gameOver = False
-        isMaster = isMain # FIXME 
-        Game.link_mode = True
+class Online_game(gGame):
 
-        Game.myBoard = GameBoard()
-        Game.hisBoard = GameTable()
-        Game.firstset = 0
-        Game.hod = Game.HOD_NONE
+    def __init__(self, _screen, _clock, _font):
+        self.screen = _screen
+        self.clock = _clock
+        self.font = _font
+
+        self.finished = False
+        self.gameOver = False
+
+        self.isMaster = True # FIXME 
+        self.myBoard = GameBoard()
+        self.hisBoard = GameBoard()
+        self.firstset = 0
+        self.hod = super.HOD_NONE
+  
+    def mainloop(self): 
+
 
         Game.draw_text(sb_strings.letsbegin)
         self.upd()
@@ -137,3 +143,6 @@ class Online_game(Game):
             Game.hisBoard.hide()
             Game.draw_text(sb_strings.prepare_done)
             Game.setHod(Game.HOD_MY)
+
+if __name__ == "__main__":
+    print("This module is not for direct call!")
