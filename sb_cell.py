@@ -35,7 +35,8 @@ class GameBoardCell:
 
     def TryHit(self, x0, y0):
         return self.x == x0 and self.y == y0 \
-            and self.state != CellState.HitDeck
+            and self.state != CellState.HitDeck \
+            and self.state != CellState.Miss
 
 
 if __name__ == "__main__":

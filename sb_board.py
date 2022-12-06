@@ -57,7 +57,7 @@ class GameBoard:
         for k in range(len(self._ships)):
             if self._ships[k].isOn(i, j):
                 return self._ships[k].GetState()
-        return -1
+        return ShipState.Safe
 
 
         for sh in self._ships:
@@ -68,14 +68,14 @@ class GameBoard:
     def PvP(self, x, y, r, h, idx):
         if r < 1 or r > 4 or h > 1 or h < 0:
             return pvp_result.incorrect
-        elif (x + r * h - 1) > 9 \
-                or (y + (r if h == 0 else 0) - 1) > 9 \
+        elif (x + (r if h else 0) - 1) > 9 \
+                or (y + (0 if h else r) - 1) > 9 \
                 or x < 0 or y < 0:
             return pvp_result.out_of_pole
-        elif (not self.check_counter(r)):
+        elif not self.check_counter(r):
             return pvp_result.overflow
         else:
-            if not self._ships[idx % 10].Create(self, r, x, y, h != 0):
+            if not self._ships[idx % 10].Create(self, r, x, y, h):
                 return pvp_result.cant_pos
             else:
                 self.change_counter(r)
@@ -97,7 +97,7 @@ class GameBoard:
                 return True
             else:
                 # иначе засчитываем промах
-                self._cells[y][x].SetState(CellState.Miss)
+                self._cells[x][y].SetState(CellState.Miss)
         return False
 
     # обход всех кораблей
@@ -116,12 +116,12 @@ class GameBoard:
 
     # функция установки статуса клетки игровго поля
     def SetState(self, x, y, state):
-        self._cells[y][x].SetState(state)
+        self._cells[x][y].SetState(state)
 
     # функция возвращает является ли клетка палубой
     def IsDeck(self, x, y):
-        return self._cells[y][x].GetState() == CellState.Deck \
-            or self._cells[y][x].GetState() == CellState.HitDeck
+        return self._cells[x][y].GetState() == CellState.Deck \
+            or self._cells[x][y].GetState() == CellState.HitDeck
 
     def hide(self):
         self.hidden = True

@@ -16,6 +16,12 @@ from sb_helpers import sb_pair
 # x,y,n - числа
 """
 
+class sb_result:  #FIXME
+    NONE = -1
+    MISS = 0
+    DAMAGE = 1
+    KILL = 2
+
 
 class sb_link:
 
@@ -49,6 +55,8 @@ class sb_link:
         else:
             sb_link.myName = configs[1]
             sb_link.hisName = configs[0]
+
+        self.channel_name = self.channel_name + configs[0]
 
         pnconfig = PNConfiguration()
         pnconfig.subscribe_key = configs[2]
@@ -88,10 +96,15 @@ class sb_link:
     # s** копим в массиве
     ldecks = None 
     lheLose = False
-    lresult = -2
+    lresult = -1
     lattack = None
     lshoot = None
     available = False
+
+    RESULT_NONE = -1 #FIXME move to helpers
+    RESULT_MISS = 0
+    RESULT_DAMAGE = 1
+    RESULT_KILL = 2
 
     @classmethod
     def read(cls, str):
@@ -106,7 +119,7 @@ class sb_link:
     def attack(cls, x, y):
         if not cls._DBGWAITFLAG: #2?
             cls._DBGWAITFLAG = True #2->1
-        sb_link.lattack=sb_pair([y,x])
+        sb_link.lattack = sb_pair([x, y])
         sb_link.send(f"h{x},{y}") 
 
     @classmethod
@@ -123,7 +136,7 @@ class sb_link:
         if str[0] == 'h':
             sb_link.lshoot = sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'r':
-            sb_link.lresult=int(str[1])
+            sb_link.lresult = int(str[1])
         elif str[0] == 's':
             sb_link.ldecks = sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'l':

@@ -14,7 +14,7 @@ from sb_game_online import Online_game
 from sb_game_pvp import Pvp_game
 
 
-class SeaBattle:
+class SeaBattle: #FIXME hori
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 500
     pos_myBoard = sb_pair((40, 40))
@@ -46,8 +46,8 @@ class SeaBattle:
         onlineMaster = True
 
         while running:
-            cls.screen.fill(sb_colors.gray)
-            pygame.display.update()
+            cls.showintro() #FIXME
+
             print('1 Offline\n2 Create online\n3 Join online\nType mode...')
             iii = input()
             if iii == '1':
@@ -60,6 +60,8 @@ class SeaBattle:
                 onlineMaster = False
             del iii
 
+            cls.screen.fill(sb_colors.gray)
+
             if online:
                 SeaBattle.game = Online_game(onlineMaster)
             else:
@@ -69,6 +71,18 @@ class SeaBattle:
                 pygame.quit()
                 return
         
+    @classmethod
+    def showintro(cls):
+        cls.screen.fill(sb_colors.gray)
+        cls.screen.fill(sb_colors.orange,
+                        (0, 0, cls.SCREEN_WIDTH / 2, cls.SCREEN_HEIGHT / 2))
+        cls.screen.fill(sb_colors.blue_ligth,
+                        (0, cls.SCREEN_HEIGHT/2,cls.SCREEN_WIDTH/2,cls.SCREEN_HEIGHT/2))
+        cls.screen.fill(sb_colors.blue_dark,
+                        (cls.SCREEN_WIDTH/2,cls.SCREEN_HEIGHT/2,cls.SCREEN_WIDTH/2,cls.SCREEN_HEIGHT/2))
+        
+        pygame.display.update()
+        return 0
 
     @classmethod
     def mainloop(cls):
@@ -107,8 +121,9 @@ class SeaBattle:
 
             pos.x -= cls.pos_hisBoard.x
             pos.y -= cls.pos_hisBoard.y
-            return SeaBattle.game.pole_event(pos.x // cls.cellSize,
-                                   pos.y // cls.cellSize, 2)
+            SeaBattle.game.pole_event(pos.x // cls.cellSize,
+                                      pos.y // cls.cellSize, 
+                                      SeaBattle.game.SENDER_HISBOARD)
 
         elif pos.x >= cls.pos_myBoard.x and \
                 pos.x <= \
@@ -119,10 +134,10 @@ class SeaBattle:
 
             pos.x -= cls.pos_myBoard.x
             pos.y -= cls.pos_myBoard.y
-            return SeaBattle.game.pole_event(pos.x // cls.cellSize,
-                                   pos.y // cls.cellSize, 1)
+            SeaBattle.game.pole_event(pos.x // cls.cellSize,
+                                      pos.y // cls.cellSize, 
+                                      SeaBattle.game.SENDER_MYBOARD)
 
-        return True
 
     @classmethod 
     def key_event(cls, event):
@@ -135,10 +150,10 @@ class SeaBattle:
         elif event.unicode == '4':
             SeaBattle.game.rank = 4
         elif event.unicode == '5':
-            SeaBattle.game.hori = 1 - SeaBattle.game.hori      
+            SeaBattle.game.hori = not SeaBattle.game.hori      
 
     @classmethod
-    def draw_cells(cls, unhide=True):
+    def draw_cells(cls, unhide=True): #FXIME create drawCell() and del draw_hash()
         px = cls.cellSize
 
         for i in range(GameBoard._size):
