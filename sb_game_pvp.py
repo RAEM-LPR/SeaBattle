@@ -21,12 +21,12 @@ class PVP_game(IGame):
 
     def iteration(self):
         if self.firstset >= GameBoard._shipsCountAll:
-                if self.myBoard.AllShipsDestroyed():
-                    self.lose()
-                    self.gameOver = True
-                if self.hisBoard.AllShipsDestroyed():
-                    self.win()
-                    self.gameOver = True
+            if self.myBoard.AllShipsDestroyed():
+                self.lose()
+                self.gameOver = True
+            if self.hisBoard.AllShipsDestroyed():
+                self.win()
+                self.gameOver = True
 
     def attack_him(cls, nx, ny):
         if cls.hisBoard.getCell(nx, ny) == CellState.HitDeck \
@@ -71,8 +71,9 @@ class PVP_game(IGame):
             self.myBoard.unhide()
             if sender == self.SENDER_MYBOARD:
                 self.position_result_handler(
-                    self.myBoard.try_set_ship(msx, msy, self.ship_rank,
-                                        self.ship_isHorisontal, self.firstset))
+                    self.myBoard.try_set_ship(
+                        msx, msy, self.ship_rank,
+                        self.ship_isHorisontal, self.firstset))
 
         if self.firstset == GameBoard._shipsCount:
             self.myBoard.hide()
@@ -87,8 +88,9 @@ class PVP_game(IGame):
             self.hisBoard.unhide()
             if sender == self.SENDER_HISBOARD:
                 self.position_result_handler(
-                    self.hisBoard.try_set_ship(msx, msy, self.ship_rank,
-                                    self.ship_isHorisontal, self.firstset))
+                    self.hisBoard.try_set_ship(
+                        msx, msy, self.ship_rank,
+                        self.ship_isHorisontal, self.firstset))
 
         if self.firstset >= GameBoard._shipsCountAll:
             self.hisBoard.hide()
@@ -108,8 +110,9 @@ class PVP_game(IGame):
         cls.draw_text(sb_strings.lose)
 
     def checkWin(cls):
-            return cls.myBoard.AllShipsDestroyed() \
-                or cls.myBoard.AllShipsDestroyed()
+        return cls.myBoard.AllShipsDestroyed() \
+            or cls.myBoard.AllShipsDestroyed()
+
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

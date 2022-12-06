@@ -57,7 +57,7 @@ class SeaBattle:
                         onlineMaster = evpos.x < cls.SCREEN_WIDTH / 2
                         if evpos.y > cls.SCREEN_HEIGHT / 2 \
                                 or evpos.x < cls.SCREEN_WIDTH / 2:
-                            showing_intro = False 
+                            showing_intro = False
 
             cls.screen.fill(sb_colors.gray)
 
@@ -65,11 +65,11 @@ class SeaBattle:
                 SeaBattle.game = Online_game(onlineMaster)
             else:
                 SeaBattle.game = PVP_game()
-            
+
             if SeaBattle.mainloop():
                 pygame.quit()
                 return
-        
+
     @classmethod
     def showintro(cls):
         hw = cls.SCREEN_WIDTH / 2
@@ -78,10 +78,10 @@ class SeaBattle:
         cls.screen.fill(sb_colors.gray)
         cls.screen.fill(sb_colors.orange, (0, 0, hw, hh))
         cls.screen.fill(sb_colors.blue_ligth, (0, hh, hw, hh))
-        cls.screen.fill(sb_colors.blue_dark,(hw, hh, hw, hh))
+        cls.screen.fill(sb_colors.blue_dark, (hw, hh, hw, hh))
         cls.draw_text_big("Start offline", hw / 4, hh / 2)
         cls.draw_text_big("Create online", hw / 4, 3 * hh / 2)
-        cls.draw_text_big("Join online", hw + hw / 4, 3 * hh / 2)    
+        cls.draw_text_big("Join online", hw + hw / 4, 3 * hh / 2)
 
         pygame.display.update()
 
@@ -97,8 +97,8 @@ class SeaBattle:
                     SeaBattle.mouse_event(event)
                 elif event.type == pygame.KEYDOWN:
                     SeaBattle.key_event(event)
-            
-            if not cls.game.draw_text_buffer is None:
+
+            if cls.game.draw_text_buffer is not None:
                 cls.screen.fill(sb_colors.gray)
                 cls.draw_text(cls.game.draw_text_buffer)
                 cls.game.draw_text_buffer = None
@@ -110,36 +110,37 @@ class SeaBattle:
             cls.clock.tick(cls.FPS)
             pygame.display.update()
 
-    @classmethod 
+    @classmethod
     def mouse_event(cls, event):
         pos = sb_pair(event.pos)
         if pos.x >= cls.pos_hisBoard.x \
-                and pos.x <= \
-                SeaBattle.game.hisBoard._size * cls.cellSize + cls.pos_hisBoard.x \
+                and pos.x <= SeaBattle.game.hisBoard._size * cls.cellSize + \
+                    cls.pos_hisBoard.x \
                 and pos.y >= cls.pos_hisBoard.y \
                 and pos.y <= \
-                SeaBattle.game.hisBoard._size * cls.cellSize + cls.pos_hisBoard.y:
+                SeaBattle.game.hisBoard._size * cls.cellSize + \
+                    cls.pos_hisBoard.y:
 
             pos.x -= cls.pos_hisBoard.x
             pos.y -= cls.pos_hisBoard.y
             SeaBattle.game.pole_event(pos.x // cls.cellSize,
-                                      pos.y // cls.cellSize, 
+                                      pos.y // cls.cellSize,
                                       SeaBattle.game.SENDER_HISBOARD)
 
-        elif pos.x >= cls.pos_myBoard.x and \
-                pos.x <= \
-                SeaBattle.game.myBoard._size * cls.cellSize + cls.pos_myBoard.x \
+        elif pos.x >= cls.pos_myBoard.x \
+                and pos.x <= SeaBattle.game.myBoard._size * cls.cellSize + \
+                    cls.pos_myBoard.x \
                 and pos.y >= cls.pos_myBoard.y \
-                and pos.y <= \
-                SeaBattle.game.myBoard._size * cls.cellSize + cls.pos_myBoard.y:
+                and pos.y <= SeaBattle.game.myBoard._size * cls.cellSize + \
+                    cls.pos_myBoard.y:
 
             pos.x -= cls.pos_myBoard.x
             pos.y -= cls.pos_myBoard.y
             SeaBattle.game.pole_event(pos.x // cls.cellSize,
-                                      pos.y // cls.cellSize, 
+                                      pos.y // cls.cellSize,
                                       SeaBattle.game.SENDER_MYBOARD)
 
-    @classmethod 
+    @classmethod
     def key_event(cls, event):
         if event.unicode == '1':
             SeaBattle.game.ship_rank = 1
@@ -151,7 +152,7 @@ class SeaBattle:
             SeaBattle.game.ship_rank = 4
         elif event.unicode == '5':
             SeaBattle.game.ship_isHorisontal = \
-                not SeaBattle.game.ship_isHorisontal      
+                not SeaBattle.game.ship_isHorisontal
 
     @classmethod
     def draw_cells(cls, unhide=True):
@@ -223,7 +224,7 @@ class SeaBattle:
     @classmethod
     def draw_text_big(cls, str, x, y):
         cls.screen.blit(
-            cls.font_big.render(str, False, sb_colors.black), (x, y))                       
+            cls.font_big.render(str, False, sb_colors.black), (x, y))
 
 
 if __name__ == "__main__":

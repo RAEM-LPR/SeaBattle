@@ -146,7 +146,7 @@ class GameTable:
     def SetState(self, x, y, state):
         self._cells[x][y].SetState(state)
 
-    def kill(self, x, y, xy=[[-1,-1]]):
+    def kill(self, x, y, xy=[[-1, -1]]):
         self.SetState(x, y, CellState.HitDeck)
         for c in xy:
             if x == c[0] and y == c[1]:
@@ -154,7 +154,7 @@ class GameTable:
         for i in range(max(x - 1, 0), min(x + 2, self._size)):
             for j in range(max(y - 1, 0), min(y + 2, self._size)):
                 if self.getCell(i, j) == CellState.HitDeck:
-                    self.kill(i, j, xy + [[x,y]])
+                    self.kill(i, j, xy + [[x, y]])
                 elif self.getCell(i, j) == CellState.Empty:
                     self.SetState(i, j, CellState.Miss)
 

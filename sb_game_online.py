@@ -26,8 +26,8 @@ class Online_game(IGame):
 
         sb_link.begin(mode)
 
-    def setMotion(self, ipt): 
-        if ipt == sb_motion.HIS or ipt == sb_motion.MY_WAIT: #FIXME dbg only
+    def setMotion(self, ipt):
+        if ipt == sb_motion.HIS or ipt == sb_motion.MY_WAIT:  # FIXME dbg only
             sb_link._DBGWAITFLAG = True
         else:
             sb_link._DBGWAITFLAG = False
@@ -41,13 +41,14 @@ class Online_game(IGame):
             self.draw_text(sb_strings.motionw)
 
     def iteration(self):
-        if sb_link._DBGWAITFLAG or (sb_link.isILose and not sb_link.decks_tx_ended):
+        if sb_link._DBGWAITFLAG or \
+                (sb_link.isILose and not sb_link.decks_tx_ended):
             sb_link._DBGWAITFLAG = False
-            sb_link.parse(input()) #FIXME DUBUG
-            
+            sb_link.parse(input())  # FIXME DUBUG
+
         if sb_link.isHeLose:
             self.win()
-        
+
         if sb_link.decks_tx_ended:
             for c in sb_link.decks_recieved:
                 self.hisBoard.SetState(c.x, c.y, CellState.Deck)
@@ -56,26 +57,38 @@ class Online_game(IGame):
         if self.getMotion() == sb_motion.MY_WAIT:
             if sb_link.attack_result == sb_attack_result.MISS:
                 self.setMotion(sb_motion.HIS)
-                self.hisBoard.SetState(sb_link.his_attacked_deck.x,sb_link.his_attacked_deck.y,CellState.Miss)
+                self.hisBoard.SetState(sb_link.his_attacked_deck.x,
+                                       sb_link.his_attacked_deck.y,
+                                       CellState.Miss)
             else:
                 if sb_link.attack_result == sb_attack_result.DAMAGE:
-                    self.hisBoard.SetState(sb_link.his_attacked_deck.x,sb_link.his_attacked_deck.y,CellState.HitDeck)
+                    self.hisBoard.SetState(sb_link.his_attacked_deck.x,
+                                           sb_link.his_attacked_deck.y,
+                                           CellState.HitDeck)
                 elif sb_link.attack_result == sb_attack_result.KILL:
-                    self.hisBoard.kill(sb_link.his_attacked_deck.x,sb_link.his_attacked_deck.y)
+                    self.hisBoard.kill(sb_link.his_attacked_deck.x,
+                                       sb_link.his_attacked_deck.y)
                 self.setMotion(sb_motion.MY)
             sb_link.attack_result = sb_attack_result.NONE
             sb_link.his_attacked_deck = None
 
         if self.getMotion() == sb_motion.HIS:
-            if not sb_link.my_attacked_deck is None:
-                ttt = self.attack_me(sb_link.my_attacked_deck.x, sb_link.my_attacked_deck.y)
-                if self.myBoard.getShipState(sb_link.my_attacked_deck.x, sb_link.my_attacked_deck.y) == ShipState.Safe:
+            if sb_link.my_attacked_deck is not None:
+                self.attack_me(sb_link.my_attacked_deck.x,
+                               sb_link.my_attacked_deck.y)
+                if self.myBoard.getShipState(
+                        sb_link.my_attacked_deck.x,
+                        sb_link.my_attacked_deck.y) == ShipState.Safe:
                     self.setMotion(sb_motion.MY)
                     sb_link.result(0)
                 else:
-                    if self.myBoard.getShipState(sb_link.my_attacked_deck.x, sb_link.my_attacked_deck.y) == ShipState.ShipHit:                     
+                    if self.myBoard.getShipState(
+                            sb_link.my_attacked_deck.x,
+                            sb_link.my_attacked_deck.y) == ShipState.ShipHit:
                         sb_link.result(1)
-                    elif self.myBoard.getShipState(sb_link.my_attacked_deck.x, sb_link.my_attacked_deck.y) == ShipState.Destroyed:
+                    elif self.myBoard.getShipState(
+                            sb_link.my_attacked_deck.x,
+                            sb_link.my_attacked_deck.y) == ShipState.Destroyed:
                         sb_link.result(2)
                     self.setMotion(sb_motion.HIS)
                 sb_link.my_attacked_deck = None
@@ -105,14 +118,14 @@ class Online_game(IGame):
         if self.firstset < GameBoard._shipsCount:
             if sender == self.SENDER_MYBOARD:
                 self.position_result_handler(
-                    self.myBoard.try_set_ship(x, y, self.ship_rank,
-                                     self.ship_isHorisontal, self.firstset))
+                    self.myBoard.try_set_ship(
+                        x, y, self.ship_rank,
+                        self.ship_isHorisontal, self.firstset))
 
         if self.firstset == GameBoard._shipsCount:
             self.draw_text(sb_strings.prepare_done)
             self.firstset += 1
             self.setMotion(sb_motion.MY if self.isMaster else sb_motion.HIS)
-
 
     def position_result_handler(self, result):
         if result == ship_set_result.ok:
@@ -136,8 +149,8 @@ class Online_game(IGame):
     def lose(self):
         if sb_link.isILose:
             return
-        sb_link.lose()  
-        sb_link.isILose = True   
+        sb_link.lose()
+        sb_link.isILose = True
 
     def sendShips(self):
         hideDecs = []
@@ -146,7 +159,7 @@ class Online_game(IGame):
                 if self.myBoard.getCell(x, y) == CellState.Deck:
                     hideDecs += [[x, y]]
         sb_link.sendDecks(hideDecs)
-            
+
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

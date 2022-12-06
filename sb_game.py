@@ -1,21 +1,21 @@
 from SB_cell import CellState
 
+
 class sb_motion:
     NONE = 0
     MY = 1
     HIS = 2
     MY_WAIT = 3
 
+
 class IGame:
     myBoard = None
     hisBoard = None
-    
-    gameOver = False
 
+    gameOver = False
+    motion = sb_motion.NONE
     ship_rank = 0
     ship_isHorisontal = True
-
-    motion = sb_motion.NONE
 
     draw_text_buffer = None
 
@@ -50,15 +50,13 @@ class IGame:
         return cls.motion
 
     def checkWin(cls):
-        ...  # return Game.myBoard.AllShipsDestroyed() or Game.myBoard.AllShipsDestroyed()
+        ...
 
     def win(cls):
-        print('win')
-        cls.gameOver = True #FIXME
+        ...
 
     def lose(cls):
-        print('lose')
-        cls.gameOver = True #FIXME
+        ...
 
     def draw_text(cls, str):
         cls.draw_text_buffer = str

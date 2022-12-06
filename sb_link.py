@@ -1,9 +1,9 @@
 from pubnub.callbacks import SubscribeCallback
-from pubnub.enums import PNStatusCategory, PNOperationType
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
 
 from SB_helpers import sb_pair
+
 
 """
 Протокол
@@ -24,7 +24,8 @@ from SB_helpers import sb_pair
     4 строка - PubNub publish_key
 """
 
-class sb_attack_result:  #FIXME
+
+class sb_attack_result:
     NONE = -1
     MISS = 0
     DAMAGE = 1
@@ -44,7 +45,7 @@ class sb_link:
 
     @classmethod
     def begin(cls, isMaster):
-        cls.decks_recieved = [] 
+        cls.decks_recieved = []
         cls.isHeLose = False
         cls.isILose = False
         cls.attack_result = -1
@@ -52,40 +53,39 @@ class sb_link:
         cls.my_attacked_deck = None
         cls.decks_tx_ended = False
 
-        return #FIXME dbg
+        return  # FIXME dbg
 
         configs = []
-        with open(sb_link.configfile) as file:
+        with open(cls.configfile) as file:
             configs = [line for line in file]
 
         if isMaster:
-            sb_link.myName = configs[0]
-            sb_link.hisName = configs[1]
+            cls.myName = configs[0]
+            cls.hisName = configs[1]
         else:
-            sb_link.myName = configs[1]
-            sb_link.hisName = configs[0]
+            cls.myName = configs[1]
+            cls.hisName = configs[0]
 
         if cls.began:
             return
 
-        self.channel_name = self.channel_name + configs[0]
+        cls.channel_name = cls.channel_name + configs[0]
 
         pnconfig = PNConfiguration()
         pnconfig.subscribe_key = configs[2]
         pnconfig.publish_key = configs[3]
-        pnconfig.user_id = sb_link.myName
-        sb_link.pubnub = PubNub(pnconfig)
-        sb_link.pubnub.add_listener(MySubscribeCallback())
-        sb_link.pubnub.subscribe().channels(sb_link.channel_name).execute()
+        pnconfig.user_id = cls.myName
+        cls.pubnub = PubNub(pnconfig)
+        cls.pubnub.add_listener(MySubscribeCallback())
+        cls.pubnub.subscribe().channels(cls.channel_name).execute()
         cls.began = True
-
 
     @classmethod
     def send(cls, str):
-        print(sb_link.myName + ':' + str) #FIXME DEBUG
-        #sb_link.pubnub.publish().channel(sb_link.channel_name).message(sb_link.myName + ':' + str).pn_async(sb_link.my_publish_callback)
-   
-    decks_recieved = [] 
+        print(sb_link.myName + ':' + str)  # FIXME DEBUG
+        # sb_link.pubnub.publish().channel(sb_link.channel_name).message(sb_link.myName + ':' + str).sync()  #pn_async(sb_link.my_publish_callback)
+
+    decks_recieved = []
     isHeLose = False
     isILose = False
     attack_result = -1
@@ -95,28 +95,28 @@ class sb_link:
 
     @classmethod
     def read(cls, str):
-        sb_link.parse(str) 
+        sb_link.parse(str)
         return
         data = str.split(':')
         if not data[0] == sb_link.hisName:
             return
-        sb_link.parse(data[1]) 
+        sb_link.parse(data[1])
 
     @classmethod
     def attack(cls, x, y):
-        if not cls._DBGWAITFLAG: #2?
-            cls._DBGWAITFLAG = True #2->1
+        if not cls._DBGWAITFLAG:
+            cls._DBGWAITFLAG = True
         sb_link.his_attacked_deck = sb_pair([x, y])
-        sb_link.send(f"h{x},{y}") 
+        sb_link.send(f"h{x},{y}")
 
     @classmethod
     def result(cls, res):
-        sb_link.send(f"r{res}") 
+        sb_link.send(f"r{res}")
 
     @classmethod
     def sendDecks(cls, decks):
         for d in decks:
-            sb_link.send(f"s{d[0]},{d[1]}") 
+            sb_link.send(f"s{d[0]},{d[1]}")
         sb_link.send('q')
 
     @classmethod
@@ -126,18 +126,19 @@ class sb_link:
     @classmethod
     def parse(cls, str):
         if str[0] == 'h':
-            sb_link.my_attacked_deck = sb_pair([int(x) for x in str[1:].split(sep=",")])
+            sb_link.my_attacked_deck = \
+                sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'r':
             sb_link.attack_result = int(str[1])
         elif str[0] == 's':
-            sb_link.decks_recieved += [sb_pair([int(x) for x in str[1:].split(sep=",")])]
+            sb_link.decks_recieved += \
+                [sb_pair([int(x) for x in str[1:].split(sep=",")])]
         elif str[0] == 'l':
-            sb_link.isHeLose = True  
+            sb_link.isHeLose = True
         elif str[0] == 'q':
             sb_link.decks_tx_ended = True
 
-    
-    @classmethod
+    '''@classmethod
     def my_publish_callback(cls, envelope, status):
         # Check whether request successfully completed or not
         ...
@@ -148,33 +149,13 @@ class sb_link:
         else:
             print('   sending: fail')
         """
+    '''
 
 
 class MySubscribeCallback(SubscribeCallback):
-    def presence(self, pubnub, presence):
-        pass  # handle incoming presence data
-
-    def status(self, pubnub, status):
-        if status.category == PNStatusCategory.PNUnexpectedDisconnectCategory:
-            pass  # This event happens when radio / connectivity is lost
-
-        elif status.category == PNStatusCategory.PNConnectedCategory:
-            # Connect event. You can do stuff like publish, and know you'll get it.
-            # Or just use the connected event to confirm you are subscribed for
-            # UI / internal notifications, etc
-            ... # pubnub.publish().channel('my_channel').message('Hello world!').pn_async(sb_link.my_publish_callback)
-        elif status.category == PNStatusCategory.PNReconnectedCategory:
-            pass
-            # Happens as part of our regular operation. This event happens when
-            # radio / connectivity is lost, then regained.
-        elif status.category == PNStatusCategory.PNDecryptionErrorCategory:
-            pass
-            # Handle message decryption error. Probably client configured to
-            # encrypt messages and on live data feed it received plain text.
-
     def message(self, pubnub, message):
-        # Handle new message stored in message.message
-        sb_link.read(message.message)  # print(message.message)
+        sb_link.read(message.message)
+
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

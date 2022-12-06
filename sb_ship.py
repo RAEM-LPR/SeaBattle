@@ -115,17 +115,16 @@ class Ship:
                 return True
         return False
 
-    def isOn(self,x, y):
+    def isOn(self, x, y):
         for i in range(len(self._cells)):
-            if self._cells[i].GetX()==x and self._cells[i].GetY()==y:
+            if self._cells[i].GetX() == x and self._cells[i].GetY() == y:
                 return True
         return False
-
-
-        for c in self._cells:
-            if c.GetX()==x and c.GetY()==y:
+        """for c in self._cells:  # doesn't work
+            if c.GetX() == x and c.GetY() == y:
                 return True
-        return False
+        return False"""
+
 
 if __name__ == "__main__":
     print("This module is not for direct call!")
