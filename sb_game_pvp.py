@@ -1,11 +1,11 @@
-from sb_game import IGame
-from sb_board import GameBoard
-from sb_board import pvp_result
-from sb_cell import CellState
-from sb_helpers import sb_strings
+from SB_game import IGame
+from SB_board import GameBoard
+from SB_board import pvp_result
+from SB_cell import CellState
+from SB_helpers import sb_strings
 
 
-class Pvp_game(IGame):
+class PVP_game(IGame):
 
     def __init__(self):
         self.finished = False
@@ -14,7 +14,7 @@ class Pvp_game(IGame):
         self.myBoard = GameBoard()
         self.hisBoard = GameBoard()
         self.firstset = 0
-        self.hod = IGame.HOD_NONE
+        self.motion = IGame.MOTION_NONE
 
         self.draw_text(sb_strings.letsbegin)
 
@@ -39,17 +39,17 @@ class Pvp_game(IGame):
         if self.firstset < GameBoard._shipsCountAll:
             self.prepare(x, y, sender)
             return
-        elif self.getHod() == IGame.HOD_MY:
+        elif self.getMotion() == IGame.MOTION_MY:
             if sender == self.SENDER_HISBOARD:
                 if not self.attack_him(x, y):
-                    self.draw_text(sb_strings.hod2)
-                    self.setHod(IGame.HOD_HIS)
+                    self.draw_text(sb_strings.motion2)
+                    self.setMotion(IGame.MOTION_HIS)
                     return
-        elif self.getHod() == IGame.HOD_HIS:
+        elif self.getMotion() == IGame.MOTION_HIS:
             if sender == self.SENDER_MYBOARD:
                 if not self.attack_me(x, y):
-                    self.draw_text(sb_strings.hod1)
-                    self.setHod(IGame.HOD_MY)
+                    self.draw_text(sb_strings.motion1)
+                    self.setMotion(IGame.MOTION_MY)
                     return
 
     def position_result_handler(self, result):
@@ -92,7 +92,7 @@ class Pvp_game(IGame):
         if self.firstset >= GameBoard._shipsCountAll:
             self.hisBoard.hide()
             self.draw_text(sb_strings.prepare_done1)
-            self.setHod(IGame.HOD_MY)
+            self.setMotion(IGame.MOTION_MY)
 
     def win(cls):
         cls.gameOver = True

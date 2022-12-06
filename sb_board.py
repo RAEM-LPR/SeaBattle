@@ -1,7 +1,7 @@
-from sb_cell import GameBoardCell
-from sb_cell import CellState
-from sb_ship import Ship
-from sb_ship import ShipState
+from SB_cell import GameBoardCell
+from SB_cell import CellState
+from SB_ship import Ship
+from SB_ship import ShipState
 
 
 class pvp_result:
@@ -68,8 +68,8 @@ class GameBoard:
     def PvP(self, x, y, r, h, idx):
         if r < 1 or r > 4 or h > 1 or h < 0:
             return pvp_result.incorrect
-        elif (x + (r if h else 0) - 1) > 9 \
-                or (y + (0 if h else r) - 1) > 9 \
+        elif (x + (r if h else 0) - 1) >= self._size \
+                or (y + (0 if h else r) - 1) >= self._size \
                 or x < 0 or y < 0:
             return pvp_result.out_of_pole
         elif not self.check_counter(r):

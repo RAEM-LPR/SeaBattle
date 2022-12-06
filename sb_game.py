@@ -1,6 +1,6 @@
-from sb_cell import CellState
+from SB_cell import CellState
 
-class sb_hod: #FIXME
+class sb_motion:
     NONE = 0
     MY = 1
     HIS = 2
@@ -15,10 +15,7 @@ class IGame:
     rank = 0
     hori = True
 
-    HOD_NONE = 0
-    HOD_MY = 1
-    HOD_HIS = 2
-    hod = HOD_NONE
+    motion = sb_motion.NONE
 
     draw_text_buffer = None
 
@@ -46,11 +43,11 @@ class IGame:
     def prepare(cls, msx, msy, sender):
         ...
 
-    def setHod(cls, ipt):
-        cls.hod = ipt
+    def setMotion(cls, ipt):
+        cls.motion = ipt
 
-    def getHod(cls):
-        return cls.hod
+    def getMotion(cls):
+        return cls.motion
 
     def checkWin(cls):
         ...  # return Game.myBoard.AllShipsDestroyed() or Game.myBoard.AllShipsDestroyed()

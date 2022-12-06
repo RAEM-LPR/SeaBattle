@@ -1,5 +1,5 @@
-from sb_cell import GameBoardCell
-from sb_cell import CellState
+from SB_cell import GameBoardCell
+from SB_cell import CellState
 
 
 class ShipState:

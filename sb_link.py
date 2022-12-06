@@ -3,7 +3,7 @@ from pubnub.enums import PNStatusCategory, PNOperationType
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
 
-from sb_helpers import sb_pair
+from SB_helpers import sb_pair
 
 """
 Протокол
@@ -13,6 +13,7 @@ from sb_helpers import sb_pair
     rn - результат выстрела; n: 0 - мимо, 1 - попал, 2 - убил
     l - lose
     sx,y - палуба на x,y
+    q - конец передачи палуб
 # x,y,n - числа
 """
 
@@ -40,6 +41,7 @@ class sb_link:
     hisName = ''
 
     began = False
+
     @classmethod
     def begin(cls, isMaster):
         return #FIXME dbg
@@ -94,12 +96,12 @@ class sb_link:
     """
     # не отправляем новый запрос, пока не обработали старый
     # s** копим в массиве
-    ldecks = None 
+    ldecks = [] 
     lheLose = False
     lresult = -1
-    lattack = None
-    lshoot = None
-    available = False
+    lattack = None # мы его
+    lshoot = None # он нас
+    lendtx = False
 
     RESULT_NONE = -1 #FIXME move to helpers
     RESULT_MISS = 0
@@ -126,23 +128,28 @@ class sb_link:
     def result(cls, res):
         sb_link.send(f"r{res}") 
 
+    def sendDecks(cls, decks):
+        for d in decks:
+            sb_link.send(f"h{d[0]},{d[1]}") 
+        sb_link.send('q')
+
     @classmethod
     def lose(cls):
         sb_link.send('l')
 
     @classmethod
     def parse(cls, str):
-        sb_link.available = True
         if str[0] == 'h':
             sb_link.lshoot = sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'r':
             sb_link.lresult = int(str[1])
         elif str[0] == 's':
-            sb_link.ldecks = sb_pair([int(x) for x in str[1:].split(sep=",")])
+            sb_link.ldecks += sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'l':
             sb_link.lheLose = True  
-        else:
-            sb_link.available = False   
+        elif str[0] == 'q':
+            sb_link.lendtx = True
+
 
 class MySubscribeCallback(SubscribeCallback):
     def presence(self, pubnub, presence):

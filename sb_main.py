@@ -1,20 +1,14 @@
 import pygame
 
-from sb_board import GameBoard
-from sb_board import GameTable
-from sb_board import pvp_result
-from sb_cell import CellState
-from sb_helpers import sb_pair
-from sb_helpers import sb_colors
-from sb_helpers import sb_strings
-from sb_link import sb_link
-from sb_ship import ShipState
-
-from sb_game_online import Online_game
-from sb_game_pvp import Pvp_game
+from SB_board import GameBoard
+from SB_cell import CellState
+from SB_helpers import sb_pair
+from SB_helpers import sb_colors
+from SB_game_online import Online_game
+from SB_game_pvp import PVP_game
 
 
-class SeaBattle: #FIXME hori
+class SeaBattle:
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 500
     pos_myBoard = sb_pair((40, 40))
@@ -38,6 +32,7 @@ class SeaBattle: #FIXME hori
 
         SeaBattle.clock = pygame.time.Clock()
         SeaBattle.font = pygame.font.SysFont('Comic Sans MS', 15)
+        SeaBattle.font_big = pygame.font.SysFont('Comic Sans MS', 45)
         SeaBattle.screen.fill(sb_colors.gray)
         pygame.display.update()
 
@@ -46,26 +41,29 @@ class SeaBattle: #FIXME hori
         onlineMaster = True
 
         while running:
-            cls.showintro() #FIXME
+            SeaBattle.showintro()
+            showing_intro = True
 
-            print('1 Offline\n2 Create online\n3 Join online\nType mode...')
-            iii = input()
-            if iii == '1':
-                online = False
-            elif iii == '2':
-                online = True
-                onlineMaster = True
-            elif iii == '3':
-                online = True
-                onlineMaster = False
-            del iii
+            while showing_intro:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        return
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        evpos = sb_pair(event.pos)
+
+                        online = evpos.y > cls.SCREEN_HEIGHT / 2
+                        onlineMaster = evpos.x < cls.SCREEN_WIDTH / 2
+                        if evpos.y > cls.SCREEN_HEIGHT / 2 \
+                                or evpos.x < cls.SCREEN_WIDTH / 2:
+                            showing_intro = False 
 
             cls.screen.fill(sb_colors.gray)
 
             if online:
                 SeaBattle.game = Online_game(onlineMaster)
             else:
-                SeaBattle.game = Pvp_game()
+                SeaBattle.game = PVP_game()
             
             if SeaBattle.mainloop():
                 pygame.quit()
@@ -73,16 +71,18 @@ class SeaBattle: #FIXME hori
         
     @classmethod
     def showintro(cls):
+        hw = cls.SCREEN_WIDTH / 2
+        hh = cls.SCREEN_HEIGHT / 2
+
         cls.screen.fill(sb_colors.gray)
-        cls.screen.fill(sb_colors.orange,
-                        (0, 0, cls.SCREEN_WIDTH / 2, cls.SCREEN_HEIGHT / 2))
-        cls.screen.fill(sb_colors.blue_ligth,
-                        (0, cls.SCREEN_HEIGHT/2,cls.SCREEN_WIDTH/2,cls.SCREEN_HEIGHT/2))
-        cls.screen.fill(sb_colors.blue_dark,
-                        (cls.SCREEN_WIDTH/2,cls.SCREEN_HEIGHT/2,cls.SCREEN_WIDTH/2,cls.SCREEN_HEIGHT/2))
-        
+        cls.screen.fill(sb_colors.orange, (0, 0, hw, hh))
+        cls.screen.fill(sb_colors.blue_ligth, (0, hh, hw, hh))
+        cls.screen.fill(sb_colors.blue_dark,(hw, hh, hw, hh))
+        cls.draw_text_big("Start offline", hw / 4, hh / 2)
+        cls.draw_text_big("Create online", hw / 4, 3 * hh / 2)
+        cls.draw_text_big("Join online", hw + hw / 4, 3 * hh / 2)    
+
         pygame.display.update()
-        return 0
 
     @classmethod
     def mainloop(cls):
@@ -153,7 +153,7 @@ class SeaBattle: #FIXME hori
             SeaBattle.game.hori = not SeaBattle.game.hori      
 
     @classmethod
-    def draw_cells(cls, unhide=True): #FXIME create drawCell() and del draw_hash()
+    def draw_cells(cls, unhide=True):
         px = cls.cellSize
 
         for i in range(GameBoard._size):
@@ -217,7 +217,12 @@ class SeaBattle: #FIXME hori
         cls.screen.fill(sb_colors.gray)
         cls.draw_cells()
         cls.screen.blit(
-            cls.font.render(str, False, color), (coord.x, coord.y))                          
+            cls.font.render(str, False, color), (coord.x, coord.y))
+
+    @classmethod
+    def draw_text_big(cls, str, x, y):
+        cls.screen.blit(
+            cls.font_big.render(str, False, sb_colors.black), (x, y))                       
 
 
 if __name__ == "__main__":
