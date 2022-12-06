@@ -3,7 +3,7 @@ from SB_game import sb_motion
 from SB_board import GameBoard
 from SB_board import GameTable
 from SB_cell import CellState
-from SB_helpers import sb_strings
+from SB_helpers import SB_strings
 from SB_link import sb_link
 from SB_link import sb_attack_result
 from SB_ship import ShipState
@@ -29,11 +29,11 @@ class Online_game(IGame):
     def setMotion(self, ipt):
         self.motion = ipt
         if ipt == sb_motion.HIS:
-            self.draw_text(sb_strings.motionh)
+            self.draw_text(SB_strings.motionh)
         elif ipt == sb_motion.MY:
-            self.draw_text(sb_strings.motionm)
+            self.draw_text(SB_strings.motionm)
         elif ipt == sb_motion.MY_WAIT:
-            self.draw_text(sb_strings.motionw)
+            self.draw_text(SB_strings.motionw)
 
     def iteration(self):
         if sb_link.isHeLose:
@@ -113,7 +113,7 @@ class Online_game(IGame):
                         self.ship_isHorisontal, self.firstset))
 
         if self.firstset == GameBoard._shipsCount:
-            self.draw_text(sb_strings.prepare_done)
+            self.draw_text(SB_strings.prepare_done)
             self.firstset += 1
             self.setMotion(sb_motion.MY if self.isMaster else sb_motion.HIS)
 
@@ -122,13 +122,13 @@ class Online_game(IGame):
             self.firstset += 1
             self.draw_text('')
         elif result == ship_set_result.incorrect:
-            self.draw_text(sb_strings.pr_incorrect)
+            self.draw_text(SB_strings.pr_incorrect)
         elif result == ship_set_result.out_of_pole:
-            self.draw_text(sb_strings.pr_out)
+            self.draw_text(SB_strings.pr_out)
         elif result == ship_set_result.overflow:
-            self.draw_text(sb_strings.pr_ovf)
+            self.draw_text(SB_strings.pr_ovf)
         elif result == ship_set_result.cant_pos:
-            self.draw_text(sb_strings.pr_cant)
+            self.draw_text(SB_strings.pr_cant)
 
     def win(self):
         if self.gameOver:
