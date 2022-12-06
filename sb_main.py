@@ -34,6 +34,7 @@ class SeaBattle:
         SeaBattle.font = pygame.font.SysFont('Comic Sans MS', 15)
         SeaBattle.font_big = pygame.font.SysFont('Comic Sans MS', 45)
         SeaBattle.screen.fill(sb_colors.gray)
+        pygame.display.set_caption('SeaBattle by RAEM-LPR')
         pygame.display.update()
 
         running = True
@@ -138,19 +139,19 @@ class SeaBattle:
                                       pos.y // cls.cellSize, 
                                       SeaBattle.game.SENDER_MYBOARD)
 
-
     @classmethod 
     def key_event(cls, event):
         if event.unicode == '1':
-            SeaBattle.game.rank = 1
+            SeaBattle.game.ship_rank = 1
         elif event.unicode == '2':
-            SeaBattle.game.rank = 2
+            SeaBattle.game.ship_rank = 2
         elif event.unicode == '3':
-            SeaBattle.game.rank = 3
+            SeaBattle.game.ship_rank = 3
         elif event.unicode == '4':
-            SeaBattle.game.rank = 4
+            SeaBattle.game.ship_rank = 4
         elif event.unicode == '5':
-            SeaBattle.game.hori = not SeaBattle.game.hori      
+            SeaBattle.game.ship_isHorisontal = \
+                not SeaBattle.game.ship_isHorisontal      
 
     @classmethod
     def draw_cells(cls, unhide=True):

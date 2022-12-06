@@ -12,14 +12,14 @@ class IGame:
     
     gameOver = False
 
-    rank = 0
-    hori = True
+    ship_rank = 0
+    ship_isHorisontal = True
 
     motion = sb_motion.NONE
 
     draw_text_buffer = None
 
-    SENDER_MYBOARD = 1 #FIXME use it
+    SENDER_MYBOARD = 1
     SENDER_HISBOARD = 2
 
     def __init__(self):
@@ -40,7 +40,7 @@ class IGame:
     def pole_event(cls, y, x, sender):
         ...
 
-    def prepare(cls, msx, msy, sender):
+    def set_ships(cls, msx, msy, sender):
         ...
 
     def setMotion(cls, ipt):

@@ -15,9 +15,16 @@ from SB_helpers import sb_pair
     sx,y - палуба на x,y
     q - конец передачи палуб
 # x,y,n - числа
+# не отправляем новый запрос, пока не обработали старый
+
+Файл с ключами:
+    1 строка - имя игрока, ходящего первым
+    2 строка - имя игрока, ходящего вторым
+    3 строка - PubNub subscribe_key
+    4 строка - PubNub publish_key
 """
 
-class sb_result:  #FIXME
+class sb_attack_result:  #FIXME
     NONE = -1
     MISS = 0
     DAMAGE = 1
@@ -25,18 +32,11 @@ class sb_result:  #FIXME
 
 
 class sb_link:
-
     _DBGWAITFLAG = False
 
-    channel_name = "seabattle"  # 'my_channel'
+    channel_name = "seabattle"
     pubnub = None
     configfile = "keys.txt"
-    """
-    1 строка - имя игрока, ходящего первым
-    2 строка - имя игрока, ходящего вторым
-    3 строка - PubNub subscribe_key
-    4 строка - PubNub publish_key
-    """
     myName = ''
     hisName = ''
 
@@ -44,9 +44,16 @@ class sb_link:
 
     @classmethod
     def begin(cls, isMaster):
+        cls.decks_recieved = [] 
+        cls.isHeLose = False
+        cls.isILose = False
+        cls.attack_result = -1
+        cls.his_attacked_deck = None
+        cls.my_attacked_deck = None
+        cls.decks_tx_ended = False
+
         return #FIXME dbg
-        if cls.began:
-            return
+
         configs = []
         with open(sb_link.configfile) as file:
             configs = [line for line in file]
@@ -57,6 +64,9 @@ class sb_link:
         else:
             sb_link.myName = configs[1]
             sb_link.hisName = configs[0]
+
+        if cls.began:
+            return
 
         self.channel_name = self.channel_name + configs[0]
 
@@ -69,44 +79,19 @@ class sb_link:
         sb_link.pubnub.subscribe().channels(sb_link.channel_name).execute()
         cls.began = True
 
-    @classmethod
-    def my_publish_callback(cls, envelope, status):
-        # Check whether request successfully completed or not
-        """
-        if not status.is_error():
-            pass
-            #print('   sending: success')
-        else:
-            print('   sending: fail')
-        """
 
     @classmethod
     def send(cls, str):
         print(sb_link.myName + ':' + str) #FIXME DEBUG
         #sb_link.pubnub.publish().channel(sb_link.channel_name).message(sb_link.myName + ':' + str).pn_async(sb_link.my_publish_callback)
-    """
-    Протокол
-        name:cmd
-    Комманды:
-        hx,y - выстрел по x,y
-        rn - результат выстрела; n: 0 - мимо, 1 - попал, 2 - убил
-        l - lose
-        sx,y - палуба на x,y
-    # x,y,n - числа
-    """
-    # не отправляем новый запрос, пока не обработали старый
-    # s** копим в массиве
-    ldecks = [] 
-    lheLose = False
-    lresult = -1
-    lattack = None # мы его
-    lshoot = None # он нас
-    lendtx = False
-
-    RESULT_NONE = -1 #FIXME move to helpers
-    RESULT_MISS = 0
-    RESULT_DAMAGE = 1
-    RESULT_KILL = 2
+   
+    decks_recieved = [] 
+    isHeLose = False
+    isILose = False
+    attack_result = -1
+    his_attacked_deck = None
+    my_attacked_deck = None
+    decks_tx_ended = False
 
     @classmethod
     def read(cls, str):
@@ -121,16 +106,17 @@ class sb_link:
     def attack(cls, x, y):
         if not cls._DBGWAITFLAG: #2?
             cls._DBGWAITFLAG = True #2->1
-        sb_link.lattack = sb_pair([x, y])
+        sb_link.his_attacked_deck = sb_pair([x, y])
         sb_link.send(f"h{x},{y}") 
 
     @classmethod
     def result(cls, res):
         sb_link.send(f"r{res}") 
 
+    @classmethod
     def sendDecks(cls, decks):
         for d in decks:
-            sb_link.send(f"h{d[0]},{d[1]}") 
+            sb_link.send(f"s{d[0]},{d[1]}") 
         sb_link.send('q')
 
     @classmethod
@@ -140,15 +126,28 @@ class sb_link:
     @classmethod
     def parse(cls, str):
         if str[0] == 'h':
-            sb_link.lshoot = sb_pair([int(x) for x in str[1:].split(sep=",")])
+            sb_link.my_attacked_deck = sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'r':
-            sb_link.lresult = int(str[1])
+            sb_link.attack_result = int(str[1])
         elif str[0] == 's':
-            sb_link.ldecks += sb_pair([int(x) for x in str[1:].split(sep=",")])
+            sb_link.decks_recieved += [sb_pair([int(x) for x in str[1:].split(sep=",")])]
         elif str[0] == 'l':
-            sb_link.lheLose = True  
+            sb_link.isHeLose = True  
         elif str[0] == 'q':
-            sb_link.lendtx = True
+            sb_link.decks_tx_ended = True
+
+    
+    @classmethod
+    def my_publish_callback(cls, envelope, status):
+        # Check whether request successfully completed or not
+        ...
+        """
+        if not status.is_error():
+            pass
+            #print('   sending: success')
+        else:
+            print('   sending: fail')
+        """
 
 
 class MySubscribeCallback(SubscribeCallback):

@@ -4,7 +4,7 @@ from SB_ship import Ship
 from SB_ship import ShipState
 
 
-class pvp_result:
+class ship_set_result:
     ok = 0
     incorrect = 1
     out_of_pole = 2
@@ -53,33 +53,27 @@ class GameBoard:
             else:
                 return state
 
-    def getShipState(self, i, j): #FIXME
+    def getShipState(self, i, j):
         for k in range(len(self._ships)):
             if self._ships[k].isOn(i, j):
                 return self._ships[k].GetState()
         return ShipState.Safe
 
-
-        for sh in self._ships:
-            if sh.isOn(i, j):
-                return sh.GetState()
-        return -1
-
-    def PvP(self, x, y, r, h, idx):
+    def try_set_ship(self, x, y, r, h, idx):
         if r < 1 or r > 4 or h > 1 or h < 0:
-            return pvp_result.incorrect
+            return ship_set_result.incorrect
         elif (x + (r if h else 0) - 1) >= self._size \
                 or (y + (0 if h else r) - 1) >= self._size \
                 or x < 0 or y < 0:
-            return pvp_result.out_of_pole
+            return ship_set_result.out_of_pole
         elif not self.check_counter(r):
-            return pvp_result.overflow
+            return ship_set_result.overflow
         else:
             if not self._ships[idx % 10].Create(self, r, x, y, h):
-                return pvp_result.cant_pos
+                return ship_set_result.cant_pos
             else:
                 self.change_counter(r)
-                return pvp_result.ok
+                return ship_set_result.ok
 
     def GetCount(self):
         return self._size**2
