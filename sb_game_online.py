@@ -9,46 +9,54 @@ from sb_link import sb_link
 from sb_ship import ShipState
 from sb_board import pvp_result
 
-import os #ddd FIXME
 
 class Online_game(IGame):
 
-    def __init__(self):
+    HOD_MY_WAIT = 3
+
+    def __init__(self, mode=True):
         self.finished = False
         self.gameOver = False
 
-        self.isMaster = True  # FIXME 
+        self.isMaster = mode
         self.myBoard = GameBoard()
         self.hisBoard = GameTable()
         self.firstset = 0
         self.hod = IGame.HOD_NONE
 
+        sb_link.begin(mode)
+
     def setHod(self, ipt): #FIXME dbg only
-        if os.path.exists('ii'):
-            os.rename('ii','i')
+        if ipt == self.HOD_HIS and not sb_link._DBGWAITFLAG:
+            sb_link._DBGWAITFLAG = True
         self.hod = ipt
 
     def iteration(self):
-        if os.path.exists('i'):
-            os.rename('i','ii')
-            sb_link.parse(input()) #FIXME DUBUG  если существует некий файл!!!
+        if sb_link._DBGWAITFLAG:
+            sb_link._DBGWAITFLAG = False
+            sb_link.parse(input()) #FIXME DUBUG
             
         if sb_link.lheLose:
             self.win()
             self.gameOver = True
-        if sb_link.lresult == 0:
-            self.setHod(self.HOD_HIS)
-            sb_link.lresult = -2
-        elif sb_link.lresult == 1:
-            self.setHod(self.HOD_MY)
-            sb_link.lresult = -2
-            self.hisBoard.SetState(sb_link.lattack.x,sb_link.lattack.y,CellState.HitDeck)
-            del sb_link.lattack
-        elif sb_link.lresult == 2:
-            self.setHod(self.HOD_MY)
-            sb_link.lresult = -2
-            self.hisBoard.kill(sb_link.lattack.x,sb_link.lattack.y)
-            del sb_link.lattack
+
+        if sb_link.lresult != -2:
+            if sb_link.lresult == 0:
+                self.setHod(self.HOD_HIS)
+                sb_link.lresult = -2
+                self.hisBoard.SetState(sb_link.lattack.x,sb_link.lattack.y,CellState.Miss)
+                del sb_link.lattack
+            elif sb_link.lresult == 1:
+                self.setHod(self.HOD_MY)
+                sb_link.lresult = -2
+                self.hisBoard.SetState(sb_link.lattack.x,sb_link.lattack.y,CellState.HitDeck)
+                del sb_link.lattack
+            elif sb_link.lresult == 2:
+                self.setHod(self.HOD_MY)
+                sb_link.lresult = -2
+                self.hisBoard.kill(sb_link.lattack.x,sb_link.lattack.y)
+                del sb_link.lattack
+
         if self.getHod() == self.HOD_HIS:
             if not sb_link.lshoot is None:
                 self.attack_me(sb_link.lshoot.x, sb_link.lshoot.y)
@@ -64,17 +72,15 @@ class Online_game(IGame):
                     self.setHod(self.HOD_HIS)
                     del sb_link.lshoot
                     sb_link.result(2)
-
-        if self.firstset >= GameBoard._shipsCountAll:
+                    
+        if self.firstset >= GameTable._shipsCountAll:
             if self.myBoard.AllShipsDestroyed():
                 self.lose()
                 self.gameOver = True
-  
-
 
     def attack_him(self, nx, ny):
         if self.hisBoard.getCell(nx,ny) != CellState.HitDeck \
-            or self.hisBoard.getCell(nx,ny) != CellState.Miss:
+            and self.hisBoard.getCell(nx,ny) != CellState.Miss:
                 if sb_link.lresult == -2:
                     sb_link.lresult == -1
                     sb_link.attack(nx, ny)
@@ -106,12 +112,12 @@ class Online_game(IGame):
             #self.myBoard.hide()
             self.draw_text(sb_strings.prepare10)#Game.draw_text(sb_strings.prepare_done)
             self.firstset += 1
-            self.setHod(self.HOD_MY if self.isMaster else self.HOD_MY)
-            if self.isMaster:
+            self.setHod(self.HOD_MY if self.isMaster else self.HOD_HIS)
+            """if self.isMaster:
                 self.setHod(self.HOD_MY)
             else:
                 self.setHod(self.HOD_MY)
-            return
+            return"""
 
     def position_result_handler(self, result):
         if result == pvp_result.ok:

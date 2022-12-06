@@ -47,9 +47,11 @@ class IGame:
         ...  # return Game.myBoard.AllShipsDestroyed() or Game.myBoard.AllShipsDestroyed()
 
     def win(cls):
+        print('win')
         cls.gameOver = True #FIXME
 
     def lose(cls):
+        print('lose')
         cls.gameOver = True #FIXME
 
     def draw_text(cls, str):

@@ -5,7 +5,6 @@ from pubnub.pubnub import PubNub
 
 from sb_helpers import sb_pair
 
-
 """
 Протокол
     name:cmd
@@ -19,6 +18,9 @@ from sb_helpers import sb_pair
 
 
 class sb_link:
+
+    _DBGWAITFLAG = False
+
     channel_name = "seabattle"  # 'my_channel'
     pubnub = None
     configfile = "keys.txt"
@@ -31,8 +33,12 @@ class sb_link:
     myName = ''
     hisName = ''
 
+    began = False
     @classmethod
     def begin(cls, isMaster):
+        return #FIXME dbg
+        if cls.began:
+            return
         configs = []
         with open(sb_link.configfile) as file:
             configs = [line for line in file]
@@ -51,6 +57,7 @@ class sb_link:
         sb_link.pubnub = PubNub(pnconfig)
         sb_link.pubnub.add_listener(MySubscribeCallback())
         sb_link.pubnub.subscribe().channels(sb_link.channel_name).execute()
+        cls.began = True
 
     @classmethod
     def my_publish_callback(cls, envelope, status):
@@ -88,6 +95,8 @@ class sb_link:
 
     @classmethod
     def read(cls, str):
+        sb_link.parse(str) 
+        return
         data = str.split(':')
         if not data[0] == sb_link.hisName:
             return
@@ -95,22 +104,28 @@ class sb_link:
 
     @classmethod
     def attack(cls, x, y):
-        sb_link.ldecks=sb_pair([x,y])
+        if not cls._DBGWAITFLAG: #2?
+            cls._DBGWAITFLAG = True #2->1
+        sb_link.lattack=sb_pair([y,x])
         sb_link.send(f"h{x},{y}") 
 
     @classmethod
     def result(cls, res):
-        sb_link.send(f"h{res}") 
+        sb_link.send(f"r{res}") 
+
+    @classmethod
+    def lose(cls):
+        sb_link.send('l')
 
     @classmethod
     def parse(cls, str):
         sb_link.available = True
         if str[0] == 'h':
-            sb_link.lattack = sb_pair([int(x) for x in str.split("h,")])
+            sb_link.lshoot = sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'r':
-            sb_link.result=int(str[1])
+            sb_link.lresult=int(str[1])
         elif str[0] == 's':
-            sb_link.ldecks = sb_pair([int(x) for x in str.split("h,")])
+            sb_link.ldecks = sb_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'l':
             sb_link.lheLose = True  
         else:

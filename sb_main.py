@@ -43,11 +43,25 @@ class SeaBattle:
 
         running = True
         online = True
+        onlineMaster = True
 
         while running:
             cls.screen.fill(sb_colors.gray)
+            pygame.display.update()
+            print('1 Offline\n2 Create online\n3 Join online\nType mode...')
+            iii = input()
+            if iii == '1':
+                online = False
+            elif iii == '2':
+                online = True
+                onlineMaster = True
+            elif iii == '3':
+                online = True
+                onlineMaster = False
+            del iii
+
             if online:
-                SeaBattle.game = Online_game()
+                SeaBattle.game = Online_game(onlineMaster)
             else:
                 SeaBattle.game = Pvp_game()
             

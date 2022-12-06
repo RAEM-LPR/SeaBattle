@@ -32,7 +32,7 @@ class GameBoard:
         self.Generate()
 
     def Generate(self):
-        self._ships = [Ship() for _ in range(self._shipsCount + 1)]
+        self._ships = [Ship() for _ in range(self._shipsCount)]
         self._cells = [[GameBoardCell()
                        for _ in range(self._size)]
                        for __ in range(self._size)]
@@ -53,7 +53,13 @@ class GameBoard:
             else:
                 return state
 
-    def getShipState(self, i, j):
+    def getShipState(self, i, j): #FIXME
+        for k in range(len(self._ships)):
+            if self._ships[k].isOn(i, j):
+                return self._ships[k].GetState()
+        return -1
+
+
         for sh in self._ships:
             if sh.isOn(i, j):
                 return sh.GetState()
@@ -144,16 +150,17 @@ class GameTable:
         return self._cells[i][j].GetState()
 
     def SetState(self, x, y, state):
-        self._cells[y][x].SetState(state)
+        self._cells[x][y].SetState(state)
 
-    def kill(self, x, y, cx=-1, cy=-1):
+    def kill(self, x, y, xy=[[-1,-1]]):
         self.SetState(x, y, CellState.HitDeck)
-        if x == cx and y == cy:
-            return
-        for i in range(max(x - 1, 0), min(x + 1, self._size)):
-            for j in range(max(y - 1, 0), min(y + 1, self._size)):
+        for c in xy:
+            if x == c[0] and y == c[1]:
+                return
+        for i in range(max(x - 1, 0), min(x + 2, self._size)):
+            for j in range(max(y - 1, 0), min(y + 2, self._size)):
                 if self.getCell(i, j) == CellState.HitDeck:
-                    self.kill(i, j, x, y)
+                    self.kill(i, j, xy + [[x,y]])
                 elif self.getCell(i, j) == CellState.Empty:
                     self.SetState(i, j, CellState.Miss)
 
