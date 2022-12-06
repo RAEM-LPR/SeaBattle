@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-from sb_cell import GameBoardCell
-from sb_cell import CellState
-=======
 from SB_cell import GameBoardCell
 from SB_cell import CellState
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
 
 
 class ShipState:
@@ -120,8 +115,6 @@ class Ship:
                 return True
         return False
 
-<<<<<<< HEAD
-=======
     def isOn(self, x, y):
         for i in range(len(self._cells)):
             if self._cells[i].GetX() == x and self._cells[i].GetY() == y:
@@ -132,7 +125,6 @@ class Ship:
                 return True
         return False"""
 
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

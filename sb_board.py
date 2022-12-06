@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-from sb_cell import GameBoardCell
-from sb_cell import CellState
-from sb_ship import Ship
-from sb_ship import ShipState
-
-
-class pvp_result:
-=======
 from SB_cell import GameBoardCell
 from SB_cell import CellState
 from SB_ship import Ship
@@ -14,7 +5,6 @@ from SB_ship import ShipState
 
 
 class ship_set_result:
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
     ok = 0
     incorrect = 1
     out_of_pole = 2
@@ -41,23 +31,8 @@ class GameBoard:
     def __init__(self):
         self.Generate()
 
-<<<<<<< HEAD
-    def getCell(self, i, j):
-        if not self.hidden:
-            return self._cells[i][j].GetState()
-        else:
-            state = self._cells[i][j].GetState()
-            if state == CellState.Deck:
-                return CellState.Empty
-            else:
-                return state
-
-    def Generate(self):
-        self._ships = [Ship() for _ in range(self._shipsCount + 1)]
-=======
     def Generate(self):
         self._ships = [Ship() for _ in range(self._shipsCount)]
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
         self._cells = [[GameBoardCell()
                        for _ in range(self._size)]
                        for __ in range(self._size)]
@@ -68,23 +43,6 @@ class GameBoard:
             for j in range(self._size):
                 self._cells[i][j].SetState(CellState.Empty)
 
-<<<<<<< HEAD
-    def PvP(self, x, y, r, h, idx):
-        if r < 1 or r > 4 or h > 1 or h < 0:
-            return pvp_result.incorrect
-        elif (x + r * h - 1) > 9 \
-                or (y + (r if h == 0 else 0) - 1) > 9 \
-                or x < 0 or y < 0:
-            return pvp_result.out_of_pole
-        elif (not self.check_counter(r)):
-            return pvp_result.overflow
-        else:
-            if not self._ships[idx % 10].Create(self, r, x, y, h != 0):
-                return pvp_result.cant_pos
-            else:
-                self.change_counter(r)
-                return pvp_result.ok
-=======
     def getCell(self, i, j):
         if not self.hidden:
             return self._cells[i][j].GetState()
@@ -116,7 +74,6 @@ class GameBoard:
             else:
                 self.change_counter(r)
                 return ship_set_result.ok
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
 
     def GetCount(self):
         return self._size**2
@@ -134,11 +91,7 @@ class GameBoard:
                 return True
             else:
                 # иначе засчитываем промах
-<<<<<<< HEAD
-                self._cells[y][x].SetState(CellState.Miss)
-=======
                 self._cells[x][y].SetState(CellState.Miss)
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
         return False
 
     # обход всех кораблей
@@ -157,21 +110,12 @@ class GameBoard:
 
     # функция установки статуса клетки игровго поля
     def SetState(self, x, y, state):
-<<<<<<< HEAD
-        self._cells[y][x].SetState(state)
-
-    # функция возвращает является ли клетка палубой
-    def IsDeck(self, x, y):
-        return self._cells[y][x].GetState() == CellState.Deck \
-            or self._cells[y][x].GetState() == CellState.HitDeck
-=======
         self._cells[x][y].SetState(state)
 
     # функция возвращает является ли клетка палубой
     def IsDeck(self, x, y):
         return self._cells[x][y].GetState() == CellState.Deck \
             or self._cells[x][y].GetState() == CellState.HitDeck
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
 
     def hide(self):
         self.hidden = True
@@ -180,8 +124,6 @@ class GameBoard:
         self.hidden = False
 
 
-<<<<<<< HEAD
-=======
 class GameTable:
     _size = GameBoard._size
 
@@ -217,6 +159,5 @@ class GameTable:
                     self.SetState(i, j, CellState.Miss)
 
 
->>>>>>> 28b8890a2d8037a3bee773cb66cc0a1ba3f00eb5
 if __name__ == "__main__":
     print("This module is not for direct call!")
