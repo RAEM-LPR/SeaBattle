@@ -53,8 +53,6 @@ class sb_link:
         cls.my_attacked_deck = None
         cls.decks_tx_ended = False
 
-        return  # FIXME dbg
-
         configs = []
         with open(cls.configfile) as file:
             configs = [line for line in file]
@@ -82,8 +80,9 @@ class sb_link:
 
     @classmethod
     def send(cls, str):
-        print(sb_link.myName + ':' + str)  # FIXME DEBUG
-        # sb_link.pubnub.publish().channel(sb_link.channel_name).message(sb_link.myName + ':' + str).sync()  #pn_async(sb_link.my_publish_callback)
+        sb_link.pubnub.publish().channel(sb_link.channel_name).\
+            message(sb_link.myName + ':' + str).sync()  
+        # pn_async(sb_link.my_publish_callback)
 
     decks_recieved = []
     isHeLose = False
@@ -95,8 +94,6 @@ class sb_link:
 
     @classmethod
     def read(cls, str):
-        sb_link.parse(str)
-        return
         data = str.split(':')
         if not data[0] == sb_link.hisName:
             return

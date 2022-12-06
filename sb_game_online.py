@@ -27,11 +27,6 @@ class Online_game(IGame):
         sb_link.begin(mode)
 
     def setMotion(self, ipt):
-        if ipt == sb_motion.HIS or ipt == sb_motion.MY_WAIT:  # FIXME dbg only
-            sb_link._DBGWAITFLAG = True
-        else:
-            sb_link._DBGWAITFLAG = False
-
         self.motion = ipt
         if ipt == sb_motion.HIS:
             self.draw_text(sb_strings.motionh)
@@ -41,11 +36,6 @@ class Online_game(IGame):
             self.draw_text(sb_strings.motionw)
 
     def iteration(self):
-        if sb_link._DBGWAITFLAG or \
-                (sb_link.isILose and not sb_link.decks_tx_ended):
-            sb_link._DBGWAITFLAG = False
-            sb_link.parse(input())  # FIXME DUBUG
-
         if sb_link.isHeLose:
             self.win()
 
