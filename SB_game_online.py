@@ -70,16 +70,16 @@ class Online_game(IGame):
                         sb_link.my_attacked_deck.x,
                         sb_link.my_attacked_deck.y) == ShipState.Safe:
                     self.setMotion(sb_motion.MY)
-                    sb_link.result(0)
+                    sb_link.result(sb_attack_result.MISS)
                 else:
                     if self.myBoard.getShipState(
                             sb_link.my_attacked_deck.x,
                             sb_link.my_attacked_deck.y) == ShipState.ShipHit:
-                        sb_link.result(1)
+                        sb_link.result(sb_attack_result.DAMAGE)
                     elif self.myBoard.getShipState(
                             sb_link.my_attacked_deck.x,
                             sb_link.my_attacked_deck.y) == ShipState.Destroyed:
-                        sb_link.result(2)
+                        sb_link.result(sb_attack_result.KILL)
                     self.setMotion(sb_motion.HIS)
                 sb_link.my_attacked_deck = None
 

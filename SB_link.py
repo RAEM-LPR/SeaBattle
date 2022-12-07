@@ -48,14 +48,14 @@ class sb_link:
         cls.decks_recieved = []
         cls.isHeLose = False
         cls.isILose = False
-        cls.attack_result = -1
+        cls.attack_result = sb_attack_result.NONE
         cls.his_attacked_deck = None
         cls.my_attacked_deck = None
         cls.decks_tx_ended = False
 
         configs = []
         with open(cls.configfile) as file:
-            configs = [line for line in file]
+            configs = [line.strip() for line in file]
 
         if isMaster:
             cls.myName = configs[0]
@@ -87,7 +87,7 @@ class sb_link:
     decks_recieved = []
     isHeLose = False
     isILose = False
-    attack_result = -1
+    attack_result = sb_attack_result.NONE
     his_attacked_deck = None
     my_attacked_deck = None
     decks_tx_ended = False
