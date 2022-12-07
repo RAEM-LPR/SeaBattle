@@ -61,6 +61,10 @@ class IGame:
     def draw_text(cls, str):
         cls.draw_text_buffer = str
 
+    def set_boards_position(cls, my_pos, his_pos):
+        cls.hisBoard.setPos(his_pos)
+        cls.myBoard.setPos(my_pos)
+
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

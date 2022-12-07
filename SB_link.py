@@ -81,7 +81,7 @@ class sb_link:
     @classmethod
     def send(cls, str):
         sb_link.pubnub.publish().channel(sb_link.channel_name).\
-            message(sb_link.myName + ':' + str).sync()  
+            message(sb_link.myName + ':' + str).sync()
         # pn_async(sb_link.my_publish_callback)
 
     decks_recieved = []

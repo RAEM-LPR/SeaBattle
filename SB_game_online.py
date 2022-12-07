@@ -39,12 +39,15 @@ class Online_game(IGame):
         if sb_link.isHeLose:
             self.win()
 
+        # если после завершения игры получили все неоткрытые палубы
         if sb_link.decks_tx_ended:
             for c in sb_link.decks_recieved:
                 self.hisBoard.SetState(c.x, c.y, CellState.Deck)
             self.gameOver = True
 
-        if self.getMotion() == sb_motion.MY_WAIT:
+        # ждём ответ от протиника, и он пришёл
+        if self.getMotion() == sb_motion.MY_WAIT \
+                and sb_link.attack_result != sb_attack_result.NONE:
             if sb_link.attack_result == sb_attack_result.MISS:
                 self.setMotion(sb_motion.HIS)
                 self.hisBoard.SetState(sb_link.his_attacked_deck.x,
@@ -62,7 +65,7 @@ class Online_game(IGame):
             sb_link.attack_result = sb_attack_result.NONE
             sb_link.his_attacked_deck = None
 
-        if self.getMotion() == sb_motion.HIS:
+        if self.getMotion() == sb_motion.HIS:  # если нас атакуют
             if sb_link.my_attacked_deck is not None:
                 self.attack_me(sb_link.my_attacked_deck.x,
                                sb_link.my_attacked_deck.y)
@@ -83,6 +86,7 @@ class Online_game(IGame):
                     self.setMotion(sb_motion.HIS)
                 sb_link.my_attacked_deck = None
 
+        # если у нас не осталось кораблей
         if self.firstset >= GameTable._shipsCountAll:
             if self.myBoard.AllShipsDestroyed():
                 self.lose()
@@ -95,6 +99,10 @@ class Online_game(IGame):
             sb_link.attack(x, y)
 
     def pole_event(self, x, y, sender):
+        """
+        обработка клика на ячейку (x,y)
+        игрового поля sender (наше или противника)
+        """
         if self.myBoard.AllShipsDestroyed():
             return
         elif self.firstset < GameTable._shipsCountAll:

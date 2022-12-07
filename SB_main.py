@@ -65,6 +65,8 @@ class SeaBattle:
                 SeaBattle.game = Online_game(onlineMaster)
             else:
                 SeaBattle.game = PVP_game()
+            SeaBattle.game.set_boards_position(cls.pos_myBoard, \
+                                               cls.pos_hisBoard)
 
             if SeaBattle.mainloop():
                 pygame.quit()
@@ -113,29 +115,29 @@ class SeaBattle:
     @classmethod
     def mouse_event(cls, event):
         pos = sb_pair(event.pos)
-        if pos.x >= cls.pos_hisBoard.x \
+        if pos.x >= SeaBattle.game.hisBoard.pos.x \
                 and pos.x <= SeaBattle.game.hisBoard._size * cls.cellSize + \
-                    cls.pos_hisBoard.x \
-                and pos.y >= cls.pos_hisBoard.y \
+                    SeaBattle.game.hisBoard.pos.x \
+                and pos.y >= SeaBattle.game.hisBoard.pos.y \
                 and pos.y <= \
                 SeaBattle.game.hisBoard._size * cls.cellSize + \
-                    cls.pos_hisBoard.y:
+                    SeaBattle.game.hisBoard.pos.y:
 
-            pos.x -= cls.pos_hisBoard.x
-            pos.y -= cls.pos_hisBoard.y
+            pos.x -= SeaBattle.game.hisBoard.pos.x
+            pos.y -= SeaBattle.game.hisBoard.pos.y
             SeaBattle.game.pole_event(pos.x // cls.cellSize,
                                       pos.y // cls.cellSize,
                                       SeaBattle.game.SENDER_HISBOARD)
 
-        elif pos.x >= cls.pos_myBoard.x \
+        elif pos.x >= SeaBattle.game.myBoard.pos.x \
                 and pos.x <= SeaBattle.game.myBoard._size * cls.cellSize + \
-                    cls.pos_myBoard.x \
-                and pos.y >= cls.pos_myBoard.y \
+                    SeaBattle.game.myBoard.pos.x \
+                and pos.y >= SeaBattle.game.myBoard.pos.y \
                 and pos.y <= SeaBattle.game.myBoard._size * cls.cellSize + \
-                    cls.pos_myBoard.y:
+                    SeaBattle.game.myBoard.pos.y:
 
-            pos.x -= cls.pos_myBoard.x
-            pos.y -= cls.pos_myBoard.y
+            pos.x -= SeaBattle.game.myBoard.pos.x
+            pos.y -= SeaBattle.game.myBoard.pos.y
             SeaBattle.game.pole_event(pos.x // cls.cellSize,
                                       pos.y // cls.cellSize,
                                       SeaBattle.game.SENDER_MYBOARD)
@@ -156,55 +158,42 @@ class SeaBattle:
 
     @classmethod
     def draw_cells(cls, unhide=True):
-        px = cls.cellSize
-
         for i in range(GameBoard._size):
             for j in range(GameBoard._size):
-                thiscolor = sb_colors.blue_dark
-                thiscell = SeaBattle.game.myBoard.getCell(i, j)
-                if thiscell == CellState.Deck:
-                    if unhide:
-                        thiscolor = sb_colors.orange
-                    else:
-                        thiscolor = sb_colors.blue_dark
-                elif thiscell == CellState.Empty:
-                    thiscolor = sb_colors.blue_dark
-                elif thiscell == CellState.HitDeck:
-                    thiscolor = sb_colors.red
-                elif thiscell == CellState.Miss:
-                    thiscolor = sb_colors.blue_ligth
+                cls.draw_cell(SeaBattle.game.myBoard, i, j, unhide)
+                cls.draw_cell(SeaBattle.game.hisBoard, i, j, unhide)
 
-                pygame.draw.rect(cls.screen, thiscolor, (
-                    cls.pos_myBoard.x + i * px,
-                    cls.pos_myBoard.y + j * px, px, px))
-
-                thiscell = SeaBattle.game.hisBoard.getCell(i, j)
-                if thiscell == CellState.Deck:
-                    if unhide:
-                        thiscolor = sb_colors.orange
-                    else:
-                        thiscolor = sb_colors.blue_dark
-                elif thiscell == CellState.Empty:
-                    thiscolor = sb_colors.blue_dark
-                elif thiscell == CellState.HitDeck:
-                    thiscolor = sb_colors.red
-                elif thiscell == CellState.Miss:
-                    thiscolor = sb_colors.blue_ligth
-
-                pygame.draw.rect(cls.screen, thiscolor, (
-                    cls.pos_hisBoard.x + i * px,
-                    cls.pos_hisBoard.y + j * px, px, px))
-
-        cls.draw_hash(SeaBattle.game.myBoard, cls.pos_myBoard)
-        cls.draw_hash(SeaBattle.game.hisBoard, cls.pos_hisBoard)
+        cls.draw_hash(SeaBattle.game.myBoard)
+        cls.draw_hash(SeaBattle.game.hisBoard)
 
     @classmethod
-    def draw_hash(cls, board, boardpos):
+    def draw_cell(cls, board, x, y, unhide=True):
+        thiscolor = sb_colors.blue_dark
+        thiscell = board.getCell(x, y)
+        if thiscell == CellState.Deck:
+            if unhide:
+                thiscolor = sb_colors.orange
+            else:
+                thiscolor = sb_colors.blue_dark
+        elif thiscell == CellState.Empty:
+            thiscolor = sb_colors.blue_dark
+        elif thiscell == CellState.HitDeck:
+            thiscolor = sb_colors.red
+        elif thiscell == CellState.Miss:
+            thiscolor = sb_colors.blue_ligth
+
+        px = cls.cellSize
+        pygame.draw.rect(cls.screen, thiscolor, (
+            board.pos.x + x * px,
+            board.pos.y + y * px, px, px))
+
+    @classmethod
+    def draw_hash(cls, board):
         for i in range(board._size + 1):
             px = cls.cellSize
             si = board._size
-            x = boardpos.x
-            y = boardpos.y
+            x = board.pos.x
+            y = board.pos.y
             pygame.draw.line(cls.screen, sb_colors.black,
                              (x + i * px, y + 0),
                              (x + i * px, y + si * px))

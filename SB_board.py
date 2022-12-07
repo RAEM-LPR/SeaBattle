@@ -28,6 +28,8 @@ class GameBoard:
 
     _shipsCountAll = 2 * _shipsCount + 1
 
+    pos = None  # положение на экране
+
     def __init__(self):
         self.Generate()
 
@@ -74,6 +76,9 @@ class GameBoard:
             else:
                 self.change_counter(r)
                 return ship_set_result.ok
+
+    def setPos(self, xy):
+        self.pos = xy
 
     def GetCount(self):
         return self._size**2
@@ -126,8 +131,9 @@ class GameBoard:
 
 class GameTable:
     _size = GameBoard._size
-
     _shipsCountAll = GameBoard._shipsCount + 1
+
+    pos = None  # положение на экране
 
     def __init__(self):
         self.Generate()
@@ -139,6 +145,9 @@ class GameTable:
         for i in range(self._size):
             for j in range(self._size):
                 self._cells[i][j].SetState(CellState.Empty)
+
+    def setPos(self, xy):
+        self.pos = xy
 
     def getCell(self, i, j):
         return self._cells[i][j].GetState()
