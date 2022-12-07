@@ -1,13 +1,13 @@
 from SB_game import IGame
-from SB_game import sb_motion
+from SB_game import SB_motion
 from SB_board import GameBoard
 from SB_board import GameTable
 from SB_cell import CellState
 from SB_helpers import SB_strings
-from SB_link import sb_link
-from SB_link import sb_attack_result
+from SB_link import SB_link
+from SB_link import SB_attack_result
 from SB_ship import ShipState
-from SB_board import ship_set_result
+from SB_board import Ship_set_result
 
 
 class Online_game(IGame):
@@ -17,74 +17,75 @@ class Online_game(IGame):
         self.gameOver = False
 
         self.isMaster = mode
-        self.myBoard = GameBoard()
-        self.hisBoard = GameTable()
+        self.myBoard = GameBoard(self.SENDER_MYBOARD)
+        self.hisBoard = GameTable(self.SENDER_HISBOARD)
         self.firstset = 0
-        self.motion = sb_motion.NONE
-
+        self.motion = SB_motion.NONE
         self.myBoard.unhide()
 
-        sb_link.begin(mode)
+        self.draw_text(SB_strings.letsbegin)
+
+        SB_link.begin(mode)
 
     def setMotion(self, ipt):
         self.motion = ipt
-        if ipt == sb_motion.HIS:
+        if ipt == SB_motion.HIS:
             self.draw_text(SB_strings.motionh)
-        elif ipt == sb_motion.MY:
+        elif ipt == SB_motion.MY:
             self.draw_text(SB_strings.motionm)
-        elif ipt == sb_motion.MY_WAIT:
+        elif ipt == SB_motion.MY_WAIT:
             self.draw_text(SB_strings.motionw)
 
     def iteration(self):
-        if sb_link.isHeLose:
+        if SB_link.isHeLose:
             self.win()
 
         # если после завершения игры получили все неоткрытые палубы
-        if sb_link.decks_tx_ended:
-            for c in sb_link.decks_recieved:
-                self.hisBoard.SetState(c.x, c.y, CellState.Deck)
+        if SB_link.decks_tx_ended:
+            for c in SB_link.decks_recieved:
+                self.hisBoard.SetState(c.x, c.y, CellState.DECK)
             self.gameOver = True
 
         # ждём ответ от протиника, и он пришёл
-        if self.getMotion() == sb_motion.MY_WAIT \
-                and sb_link.attack_result != sb_attack_result.NONE:
-            if sb_link.attack_result == sb_attack_result.MISS:
-                self.setMotion(sb_motion.HIS)
-                self.hisBoard.SetState(sb_link.his_attacked_deck.x,
-                                       sb_link.his_attacked_deck.y,
-                                       CellState.Miss)
+        if self.getMotion() == SB_motion.MY_WAIT \
+                and SB_link.attack_result != SB_attack_result.NONE:
+            if SB_link.attack_result == SB_attack_result.MISS:
+                self.setMotion(SB_motion.HIS)
+                self.hisBoard.SetState(SB_link.his_attacked_deck.x,
+                                       SB_link.his_attacked_deck.y,
+                                       CellState.MISS)
             else:
-                if sb_link.attack_result == sb_attack_result.DAMAGE:
-                    self.hisBoard.SetState(sb_link.his_attacked_deck.x,
-                                           sb_link.his_attacked_deck.y,
-                                           CellState.HitDeck)
-                elif sb_link.attack_result == sb_attack_result.KILL:
-                    self.hisBoard.kill(sb_link.his_attacked_deck.x,
-                                       sb_link.his_attacked_deck.y)
-                self.setMotion(sb_motion.MY)
-            sb_link.attack_result = sb_attack_result.NONE
-            sb_link.his_attacked_deck = None
+                if SB_link.attack_result == SB_attack_result.DAMAGE:
+                    self.hisBoard.SetState(SB_link.his_attacked_deck.x,
+                                           SB_link.his_attacked_deck.y,
+                                           CellState.HIT_DECK)
+                elif SB_link.attack_result == SB_attack_result.KILL:
+                    self.hisBoard.kill(SB_link.his_attacked_deck.x,
+                                       SB_link.his_attacked_deck.y)
+                self.setMotion(SB_motion.MY)
+            SB_link.attack_result = SB_attack_result.NONE
+            SB_link.his_attacked_deck = None
 
-        if self.getMotion() == sb_motion.HIS:  # если нас атакуют
-            if sb_link.my_attacked_deck is not None:
-                self.attack_me(sb_link.my_attacked_deck.x,
-                               sb_link.my_attacked_deck.y)
+        if self.getMotion() == SB_motion.HIS:  # если нас атакуют
+            if SB_link.my_attacked_deck is not None:
+                self.attack_me(SB_link.my_attacked_deck.x,
+                               SB_link.my_attacked_deck.y)
                 if self.myBoard.getShipState(
-                        sb_link.my_attacked_deck.x,
-                        sb_link.my_attacked_deck.y) == ShipState.Safe:
-                    self.setMotion(sb_motion.MY)
-                    sb_link.result(sb_attack_result.MISS)
+                        SB_link.my_attacked_deck.x,
+                        SB_link.my_attacked_deck.y) == ShipState.SAFE:
+                    self.setMotion(SB_motion.MY)
+                    SB_link.result(SB_attack_result.MISS)
                 else:
                     if self.myBoard.getShipState(
-                            sb_link.my_attacked_deck.x,
-                            sb_link.my_attacked_deck.y) == ShipState.ShipHit:
-                        sb_link.result(sb_attack_result.DAMAGE)
+                            SB_link.my_attacked_deck.x,
+                            SB_link.my_attacked_deck.y) == ShipState.HITTED:
+                        SB_link.result(SB_attack_result.DAMAGE)
                     elif self.myBoard.getShipState(
-                            sb_link.my_attacked_deck.x,
-                            sb_link.my_attacked_deck.y) == ShipState.Destroyed:
-                        sb_link.result(sb_attack_result.KILL)
-                    self.setMotion(sb_motion.HIS)
-                sb_link.my_attacked_deck = None
+                            SB_link.my_attacked_deck.x,
+                            SB_link.my_attacked_deck.y) == ShipState.DESTROYED:
+                        SB_link.result(SB_attack_result.KILL)
+                    self.setMotion(SB_motion.HIS)
+                SB_link.my_attacked_deck = None
 
         # если у нас не осталось кораблей
         if self.firstset >= GameTable._shipsCountAll:
@@ -92,11 +93,11 @@ class Online_game(IGame):
                 self.lose()
 
     def attack_him(self, x, y):
-        if self.hisBoard.getCell(x, y) == CellState.Empty \
-                and self.getMotion() == sb_motion.MY:
-            self.setMotion(sb_motion.MY_WAIT)
-            sb_link.attack_result = sb_attack_result.NONE
-            sb_link.attack(x, y)
+        if self.hisBoard.getCell(x, y) == CellState.EMPTY \
+                and self.getMotion() == SB_motion.MY:
+            self.setMotion(SB_motion.MY_WAIT)
+            SB_link.attack_result = SB_attack_result.NONE
+            SB_link.attack(x, y)
 
     def pole_event(self, x, y, sender):
         """
@@ -108,7 +109,7 @@ class Online_game(IGame):
         elif self.firstset < GameTable._shipsCountAll:
             if sender == self.SENDER_MYBOARD:
                 self.set_ships(x, y, sender)
-        elif self.getMotion() == sb_motion.MY:
+        elif self.getMotion() == SB_motion.MY:
             if sender == self.SENDER_HISBOARD:
                 self.attack_him(x, y)
 
@@ -123,19 +124,19 @@ class Online_game(IGame):
         if self.firstset == GameBoard._shipsCount:
             self.draw_text(SB_strings.prepare_done)
             self.firstset += 1
-            self.setMotion(sb_motion.MY if self.isMaster else sb_motion.HIS)
+            self.setMotion(SB_motion.MY if self.isMaster else SB_motion.HIS)
 
     def position_result_handler(self, result):
-        if result == ship_set_result.ok:
+        if result == Ship_set_result.OK:
             self.firstset += 1
             self.draw_text('')
-        elif result == ship_set_result.incorrect:
+        elif result == Ship_set_result.INCORRECT:
             self.draw_text(SB_strings.pr_incorrect)
-        elif result == ship_set_result.out_of_pole:
+        elif result == Ship_set_result.OUT_OF_POLE:
             self.draw_text(SB_strings.pr_out)
-        elif result == ship_set_result.overflow:
+        elif result == Ship_set_result.OVERCOUNT:
             self.draw_text(SB_strings.pr_ovf)
-        elif result == ship_set_result.cant_pos:
+        elif result == Ship_set_result.CANT_SET:
             self.draw_text(SB_strings.pr_cant)
 
     def win(self):
@@ -145,18 +146,18 @@ class Online_game(IGame):
         self.gameOver = True
 
     def lose(self):
-        if sb_link.isILose:
+        if SB_link.isILose:
             return
-        sb_link.lose()
-        sb_link.isILose = True
+        SB_link.lose()
+        SB_link.isILose = True
 
     def sendShips(self):
         hideDecs = []
         for x in range(self.myBoard._size):
             for y in range(self.myBoard._size):
-                if self.myBoard.getCell(x, y) == CellState.Deck:
+                if self.myBoard.getCell(x, y) == CellState.DECK:
                     hideDecs += [[x, y]]
-        sb_link.sendDecks(hideDecs)
+        SB_link.sendDecks(hideDecs)
 
 
 if __name__ == "__main__":

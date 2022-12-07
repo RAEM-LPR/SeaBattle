@@ -1,7 +1,7 @@
 from SB_game import IGame
-from SB_game import sb_motion
+from SB_game import SB_motion
 from SB_board import GameBoard
-from SB_board import ship_set_result
+from SB_board import Ship_set_result
 from SB_cell import CellState
 from SB_helpers import SB_strings
 
@@ -12,10 +12,10 @@ class PVP_game(IGame):
         self.finished = False
         self.gameOver = False
 
-        self.myBoard = GameBoard()
-        self.hisBoard = GameBoard()
+        self.myBoard = GameBoard(self.SENDER_MYBOARD)
+        self.hisBoard = GameBoard(self.SENDER_HISBOARD)
         self.firstset = 0
-        self.motion = sb_motion.NONE
+        self.motion = SB_motion.NONE
 
         self.draw_text(SB_strings.letsbegin)
 
@@ -29,8 +29,8 @@ class PVP_game(IGame):
                 self.gameOver = True
 
     def attack_him(cls, nx, ny):
-        if cls.hisBoard.getCell(nx, ny) == CellState.HitDeck \
-                or cls.hisBoard.getCell(nx, ny) == CellState.Miss:
+        if cls.hisBoard.getCell(nx, ny) == CellState.HIT_DECK \
+                or cls.hisBoard.getCell(nx, ny) == CellState.MISS:
             return True
         return cls.hisBoard.Shoot(nx, ny)
 
@@ -40,30 +40,30 @@ class PVP_game(IGame):
         if self.firstset < GameBoard._shipsCountAll:
             self.set_ships(x, y, sender)
             return
-        elif self.getMotion() == sb_motion.MY:
+        elif self.getMotion() == SB_motion.MY:
             if sender == self.SENDER_HISBOARD:
                 if not self.attack_him(x, y):
                     self.draw_text(SB_strings.motion2)
-                    self.setMotion(sb_motion.HIS)
+                    self.setMotion(SB_motion.HIS)
                     return
-        elif self.getMotion() == sb_motion.HIS:
+        elif self.getMotion() == SB_motion.HIS:
             if sender == self.SENDER_MYBOARD:
                 if not self.attack_me(x, y):
                     self.draw_text(SB_strings.motion1)
-                    self.setMotion(sb_motion.MY)
+                    self.setMotion(SB_motion.MY)
                     return
 
     def position_result_handler(self, result):
-        if result == ship_set_result.ok:
+        if result == Ship_set_result.OK:
             self.firstset += 1
             self.draw_text('')
-        elif result == ship_set_result.incorrect:
+        elif result == Ship_set_result.INCORRECT:
             self.draw_text(SB_strings.pr_incorrect)
-        elif result == ship_set_result.out_of_pole:
+        elif result == Ship_set_result.OUT_OF_POLE:
             self.draw_text(SB_strings.pr_out)
-        elif result == ship_set_result.overflow:
+        elif result == Ship_set_result.OVERCOUNT:
             self.draw_text(SB_strings.pr_ovf)
-        elif result == ship_set_result.cant_pos:
+        elif result == Ship_set_result.CANT_SET:
             self.draw_text(SB_strings.pr_cant)
 
     def set_ships(self, msx, msy, sender):
@@ -95,7 +95,7 @@ class PVP_game(IGame):
         if self.firstset >= GameBoard._shipsCountAll:
             self.hisBoard.hide()
             self.draw_text(SB_strings.prepare_done1)
-            self.setMotion(sb_motion.MY)
+            self.setMotion(SB_motion.MY)
 
     def win(cls):
         cls.gameOver = True

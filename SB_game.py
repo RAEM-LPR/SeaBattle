@@ -1,7 +1,7 @@
 from SB_cell import CellState
 
 
-class sb_motion:
+class SB_motion:
     NONE = 0
     MY = 1
     HIS = 2
@@ -13,7 +13,7 @@ class IGame:
     hisBoard = None
 
     gameOver = False
-    motion = sb_motion.NONE
+    motion = SB_motion.NONE
     ship_rank = 0
     ship_isHorisontal = True
 
@@ -32,8 +32,8 @@ class IGame:
         ...
 
     def attack_me(cls, nx, ny):
-        if cls.myBoard.getCell(nx, ny) == CellState.HitDeck \
-                or cls.myBoard.getCell(nx, ny) == CellState.Miss:
+        if cls.myBoard.getCell(nx, ny) == CellState.HIT_DECK \
+                or cls.myBoard.getCell(nx, ny) == CellState.MISS:
             return True
         return cls.myBoard.Shoot(nx, ny)
 

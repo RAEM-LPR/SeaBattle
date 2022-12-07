@@ -2,7 +2,7 @@ from pubnub.callbacks import SubscribeCallback
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
 
-from SB_helpers import sb_pair
+from SB_helpers import SB_pair
 
 
 """
@@ -25,14 +25,14 @@ from SB_helpers import sb_pair
 """
 
 
-class sb_attack_result:
+class SB_attack_result:
     NONE = -1
     MISS = 0
     DAMAGE = 1
     KILL = 2
 
 
-class sb_link:
+class SB_link:
     _DBGWAITFLAG = False
 
     channel_name = "seabattle"
@@ -48,7 +48,7 @@ class sb_link:
         cls.decks_recieved = []
         cls.isHeLose = False
         cls.isILose = False
-        cls.attack_result = sb_attack_result.NONE
+        cls.attack_result = SB_attack_result.NONE
         cls.his_attacked_deck = None
         cls.my_attacked_deck = None
         cls.decks_tx_ended = False
@@ -80,14 +80,14 @@ class sb_link:
 
     @classmethod
     def send(cls, str):
-        sb_link.pubnub.publish().channel(sb_link.channel_name).\
-            message(sb_link.myName + ':' + str).sync()
+        SB_link.pubnub.publish().channel(SB_link.channel_name).\
+            message(SB_link.myName + ':' + str).sync()
         # pn_async(sb_link.my_publish_callback)
 
     decks_recieved = []
     isHeLose = False
     isILose = False
-    attack_result = sb_attack_result.NONE
+    attack_result = SB_attack_result.NONE
     his_attacked_deck = None
     my_attacked_deck = None
     decks_tx_ended = False
@@ -95,45 +95,45 @@ class sb_link:
     @classmethod
     def read(cls, str):
         data = str.split(':')
-        if not data[0] == sb_link.hisName:
+        if not data[0] == SB_link.hisName:
             return
-        sb_link.parse(data[1])
+        SB_link.parse(data[1])
 
     @classmethod
     def attack(cls, x, y):
         if not cls._DBGWAITFLAG:
             cls._DBGWAITFLAG = True
-        sb_link.his_attacked_deck = sb_pair([x, y])
-        sb_link.send(f"h{x},{y}")
+        SB_link.his_attacked_deck = SB_pair([x, y])
+        SB_link.send(f"h{x},{y}")
 
     @classmethod
     def result(cls, res):
-        sb_link.send(f"r{res}")
+        SB_link.send(f"r{res}")
 
     @classmethod
     def sendDecks(cls, decks):
         for d in decks:
-            sb_link.send(f"s{d[0]},{d[1]}")
-        sb_link.send('q')
+            SB_link.send(f"s{d[0]},{d[1]}")
+        SB_link.send('q')
 
     @classmethod
     def lose(cls):
-        sb_link.send('l')
+        SB_link.send('l')
 
     @classmethod
     def parse(cls, str):
         if str[0] == 'h':
-            sb_link.my_attacked_deck = \
-                sb_pair([int(x) for x in str[1:].split(sep=",")])
+            SB_link.my_attacked_deck = \
+                SB_pair([int(x) for x in str[1:].split(sep=",")])
         elif str[0] == 'r':
-            sb_link.attack_result = int(str[1])
+            SB_link.attack_result = int(str[1])
         elif str[0] == 's':
-            sb_link.decks_recieved += \
-                [sb_pair([int(x) for x in str[1:].split(sep=",")])]
+            SB_link.decks_recieved += \
+                [SB_pair([int(x) for x in str[1:].split(sep=",")])]
         elif str[0] == 'l':
-            sb_link.isHeLose = True
+            SB_link.isHeLose = True
         elif str[0] == 'q':
-            sb_link.decks_tx_ended = True
+            SB_link.decks_tx_ended = True
 
     '''@classmethod
     def my_publish_callback(cls, envelope, status):
@@ -151,7 +151,7 @@ class sb_link:
 
 class MySubscribeCallback(SubscribeCallback):
     def message(self, pubnub, message):
-        sb_link.read(message.message)
+        SB_link.read(message.message)
 
 
 if __name__ == "__main__":

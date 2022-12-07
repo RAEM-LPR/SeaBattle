@@ -18,7 +18,7 @@ class SB_strings:
     lose = "Второй игрок выиграл"
 
 
-class sb_colors:
+class SB_colors:
     gray = 0xF0F0F0
     blue_dark = 0x00008B
     blue_ligth = 0x5F9EA0
@@ -27,7 +27,7 @@ class sb_colors:
     black = 0x000000
 
 
-class sb_pair:
+class SB_pair:
     x = -1
     y = -1
 

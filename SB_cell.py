@@ -1,8 +1,8 @@
 class CellState:
-    Empty = 0
-    Deck = 1
-    Miss = 2
-    HitDeck = 3
+    EMPTY = 0
+    DECK = 1
+    MISS = 2
+    HIT_DECK = 3
 
 
 class GameBoardCell:
@@ -10,7 +10,7 @@ class GameBoardCell:
     y = -1
     state = -1
 
-    def __init__(self, x0=0, y0=0, state0=CellState.Empty):
+    def __init__(self, x0=0, y0=0, state0=CellState.EMPTY):
         self.x = x0
         self.y = y0
         self.state = state0
@@ -35,8 +35,8 @@ class GameBoardCell:
 
     def TryHit(self, x0, y0):
         return self.x == x0 and self.y == y0 \
-            and self.state != CellState.HitDeck \
-            and self.state != CellState.Miss
+            and self.state != CellState.HIT_DECK \
+            and self.state != CellState.MISS
 
 
 if __name__ == "__main__":

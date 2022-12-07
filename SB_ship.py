@@ -3,9 +3,9 @@ from SB_cell import CellState
 
 
 class ShipState:
-    Destroyed = 0
-    ShipHit = 1
-    Safe = 2
+    DESTROYED = 0
+    HITTED = 1
+    SAFE = 2
 
 
 class Ship:
@@ -40,11 +40,11 @@ class Ship:
             if is_horizontal:
                 self._cells[i].SetX(x + i)
                 self._cells[i].SetY(y)
-                gameBoard.SetState(x + i, y, CellState.Deck)
+                gameBoard.SetState(x + i, y, CellState.DECK)
             else:
                 self._cells[i].SetX(x)
                 self._cells[i].SetY(y + i)
-                gameBoard.SetState(x, y + i, CellState.Deck)
+                gameBoard.SetState(x, y + i, CellState.DECK)
 
         return True
 
@@ -52,17 +52,17 @@ class Ship:
         # считаем число попаданий
         hitCount = 0
         for i in range(self._size):
-            if self._cells[i].GetState() == CellState.HitDeck:
+            if self._cells[i].GetState() == CellState.HIT_DECK:
                 hitCount += 1
 
         # сверяем число попаданий с числом палуб
         if hitCount == 0:  # если не попали - корабль цел
-            self._state = ShipState.Safe
+            self._state = ShipState.SAFE
         elif hitCount < self._size:
             # если попали, но меньше раз, чем число палуб, то ранен
-            self._state = ShipState.ShipHit
+            self._state = ShipState.HITTED
         else:
-            self._state = ShipState.Destroyed  # иначе - уничтожен
+            self._state = ShipState.DESTROYED  # иначе - уничтожен
 
         return self._state
 
@@ -70,44 +70,44 @@ class Ship:
     def Shoot(self, gameBoard, x, y):
         for i in range(self._size):
             if self._cells[i].TryHit(x, y):
-                self._cells[i].SetState(CellState.HitDeck)
-                gameBoard.SetState(x, y, CellState.HitDeck)
+                self._cells[i].SetState(CellState.HIT_DECK)
+                gameBoard.SetState(x, y, CellState.HIT_DECK)
                 break
-        if self.GetState() == ShipState.Destroyed:
+        if self.GetState() == ShipState.DESTROYED:
             for i in range(self._size):
                 localX = self._cells[i].GetX()
                 localY = self._cells[i].GetY()
 
                 if localX - 1 >= 0 and localY - 1 >= 0 \
                         and not gameBoard.IsDeck(localX - 1, localY - 1):
-                    gameBoard.SetState(localX - 1, localY - 1, CellState.Miss)
+                    gameBoard.SetState(localX - 1, localY - 1, CellState.MISS)
 
                 if localX - 1 >= 0 \
                         and not gameBoard.IsDeck(localX - 1, localY):
-                    gameBoard.SetState(localX - 1, localY, CellState.Miss)
+                    gameBoard.SetState(localX - 1, localY, CellState.MISS)
 
                 if localX - 1 >= 0 and localY + 1 < gameBoard.GetSize() \
                         and not gameBoard.IsDeck(localX - 1, localY + 1):
-                    gameBoard.SetState(localX - 1, localY + 1, CellState.Miss)
+                    gameBoard.SetState(localX - 1, localY + 1, CellState.MISS)
                 # ===
                 if localY - 1 >= 0 \
                         and not gameBoard.IsDeck(localX, localY - 1):
-                    gameBoard.SetState(localX, localY - 1, CellState.Miss)
+                    gameBoard.SetState(localX, localY - 1, CellState.MISS)
 
                 if localY + 1 < gameBoard.GetSize()\
                         and not gameBoard.IsDeck(localX, localY + 1):
-                    gameBoard.SetState(localX, localY + 1, CellState.Miss)
+                    gameBoard.SetState(localX, localY + 1, CellState.MISS)
                 # ===
                 if localX + 1 < gameBoard.GetSize() and localY - 1 >= 0 \
                         and not gameBoard.IsDeck(localX + 1, localY - 1):
-                    gameBoard.SetState(localX + 1, localY - 1, CellState.Miss)
+                    gameBoard.SetState(localX + 1, localY - 1, CellState.MISS)
                 if localX + 1 < gameBoard.GetSize() \
                         and not gameBoard.IsDeck(localX + 1, localY):
-                    gameBoard.SetState(localX + 1, localY, CellState.Miss)
+                    gameBoard.SetState(localX + 1, localY, CellState.MISS)
                 if localX + 1 < gameBoard.GetSize() \
                         and localY + 1 < gameBoard.GetSize() \
                         and not gameBoard.IsDeck(localX + 1, localY + 1):
-                    gameBoard.SetState(localX + 1, localY + 1, CellState.Miss)
+                    gameBoard.SetState(localX + 1, localY + 1, CellState.MISS)
 
     def TryHit(self, x, y):
         for i in range(self._size):

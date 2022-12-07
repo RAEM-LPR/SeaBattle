@@ -2,8 +2,8 @@ import pygame
 
 from SB_board import GameBoard
 from SB_cell import CellState
-from SB_helpers import sb_pair
-from SB_helpers import sb_colors
+from SB_helpers import SB_pair
+from SB_helpers import SB_colors
 from SB_game_online import Online_game
 from SB_game_pvp import PVP_game
 
@@ -11,9 +11,9 @@ from SB_game_pvp import PVP_game
 class SeaBattle:
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 500
-    pos_myBoard = sb_pair((40, 40))
-    pos_hisBoard = sb_pair((560, 40))
-    pos_txt = sb_pair((10, 10))
+    pos_myBoard = SB_pair((40, 40))
+    pos_hisBoard = SB_pair((560, 40))
+    pos_txt = SB_pair((10, 10))
     cellSize = 40
     FPS = 10
 
@@ -33,7 +33,7 @@ class SeaBattle:
         SeaBattle.clock = pygame.time.Clock()
         SeaBattle.font = pygame.font.SysFont('Comic Sans MS', 15)
         SeaBattle.font_big = pygame.font.SysFont('Comic Sans MS', 45)
-        SeaBattle.screen.fill(sb_colors.gray)
+        SeaBattle.screen.fill(SB_colors.gray)
         pygame.display.set_caption('SeaBattle by RAEM-LPR')
         pygame.display.update()
 
@@ -51,7 +51,7 @@ class SeaBattle:
                         pygame.quit()
                         return
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        evpos = sb_pair(event.pos)
+                        evpos = SB_pair(event.pos)
 
                         online = evpos.y > cls.SCREEN_HEIGHT / 2
                         onlineMaster = evpos.x < cls.SCREEN_WIDTH / 2
@@ -59,13 +59,13 @@ class SeaBattle:
                                 or evpos.x < cls.SCREEN_WIDTH / 2:
                             showing_intro = False
 
-            cls.screen.fill(sb_colors.gray)
+            cls.screen.fill(SB_colors.gray)
 
             if online:
                 SeaBattle.game = Online_game(onlineMaster)
             else:
                 SeaBattle.game = PVP_game()
-            SeaBattle.game.set_boards_position(cls.pos_myBoard, \
+            SeaBattle.game.set_boards_position(cls.pos_myBoard,
                                                cls.pos_hisBoard)
 
             if SeaBattle.mainloop():
@@ -77,10 +77,10 @@ class SeaBattle:
         hw = cls.SCREEN_WIDTH / 2
         hh = cls.SCREEN_HEIGHT / 2
 
-        cls.screen.fill(sb_colors.gray)
-        cls.screen.fill(sb_colors.orange, (0, 0, hw, hh))
-        cls.screen.fill(sb_colors.blue_ligth, (0, hh, hw, hh))
-        cls.screen.fill(sb_colors.blue_dark, (hw, hh, hw, hh))
+        cls.screen.fill(SB_colors.gray)
+        cls.screen.fill(SB_colors.orange, (0, 0, hw, hh))
+        cls.screen.fill(SB_colors.blue_ligth, (0, hh, hw, hh))
+        cls.screen.fill(SB_colors.blue_dark, (hw, hh, hw, hh))
         cls.draw_text_big("Start offline", hw / 4, hh / 2)
         cls.draw_text_big("Create online", hw / 4, 3 * hh / 2)
         cls.draw_text_big("Join online", hw + hw / 4, 3 * hh / 2)
@@ -101,7 +101,7 @@ class SeaBattle:
                     SeaBattle.key_event(event)
 
             if cls.game.draw_text_buffer is not None:
-                cls.screen.fill(sb_colors.gray)
+                cls.screen.fill(SB_colors.gray)
                 cls.draw_text(cls.game.draw_text_buffer)
                 cls.game.draw_text_buffer = None
                 cls.draw_cells()
@@ -114,33 +114,22 @@ class SeaBattle:
 
     @classmethod
     def mouse_event(cls, event):
-        pos = sb_pair(event.pos)
-        if pos.x >= SeaBattle.game.hisBoard.pos.x \
-                and pos.x <= SeaBattle.game.hisBoard._size * cls.cellSize + \
-                    SeaBattle.game.hisBoard.pos.x \
-                and pos.y >= SeaBattle.game.hisBoard.pos.y \
-                and pos.y <= \
-                SeaBattle.game.hisBoard._size * cls.cellSize + \
-                    SeaBattle.game.hisBoard.pos.y:
+        cls.isClickOnBoard(event, SeaBattle.game.hisBoard)
+        cls.isClickOnBoard(event, SeaBattle.game.myBoard)
 
-            pos.x -= SeaBattle.game.hisBoard.pos.x
-            pos.y -= SeaBattle.game.hisBoard.pos.y
-            SeaBattle.game.pole_event(pos.x // cls.cellSize,
-                                      pos.y // cls.cellSize,
-                                      SeaBattle.game.SENDER_HISBOARD)
+    @classmethod
+    def isClickOnBoard(cls, event, board):
+        evpos = SB_pair(event.pos)
+        bpos = board.pos
 
-        elif pos.x >= SeaBattle.game.myBoard.pos.x \
-                and pos.x <= SeaBattle.game.myBoard._size * cls.cellSize + \
-                    SeaBattle.game.myBoard.pos.x \
-                and pos.y >= SeaBattle.game.myBoard.pos.y \
-                and pos.y <= SeaBattle.game.myBoard._size * cls.cellSize + \
-                    SeaBattle.game.myBoard.pos.y:
+        if evpos.x >= bpos.x \
+                and evpos.x <= board._size * cls.cellSize + bpos.x \
+                and evpos.y >= bpos.y \
+                and evpos.y <= board._size * cls.cellSize + bpos.y:
 
-            pos.x -= SeaBattle.game.myBoard.pos.x
-            pos.y -= SeaBattle.game.myBoard.pos.y
-            SeaBattle.game.pole_event(pos.x // cls.cellSize,
-                                      pos.y // cls.cellSize,
-                                      SeaBattle.game.SENDER_MYBOARD)
+            SeaBattle.game.pole_event((evpos.x - bpos.x) // cls.cellSize,
+                                      (evpos.y - bpos.y) // cls.cellSize,
+                                      board.senderName)
 
     @classmethod
     def key_event(cls, event):
@@ -168,19 +157,19 @@ class SeaBattle:
 
     @classmethod
     def draw_cell(cls, board, x, y, unhide=True):
-        thiscolor = sb_colors.blue_dark
+        thiscolor = SB_colors.blue_dark
         thiscell = board.getCell(x, y)
-        if thiscell == CellState.Deck:
+        if thiscell == CellState.DECK:
             if unhide:
-                thiscolor = sb_colors.orange
+                thiscolor = SB_colors.orange
             else:
-                thiscolor = sb_colors.blue_dark
-        elif thiscell == CellState.Empty:
-            thiscolor = sb_colors.blue_dark
-        elif thiscell == CellState.HitDeck:
-            thiscolor = sb_colors.red
-        elif thiscell == CellState.Miss:
-            thiscolor = sb_colors.blue_ligth
+                thiscolor = SB_colors.blue_dark
+        elif thiscell == CellState.EMPTY:
+            thiscolor = SB_colors.blue_dark
+        elif thiscell == CellState.HIT_DECK:
+            thiscolor = SB_colors.red
+        elif thiscell == CellState.MISS:
+            thiscolor = SB_colors.blue_ligth
 
         px = cls.cellSize
         pygame.draw.rect(cls.screen, thiscolor, (
@@ -194,18 +183,18 @@ class SeaBattle:
             si = board._size
             x = board.pos.x
             y = board.pos.y
-            pygame.draw.line(cls.screen, sb_colors.black,
+            pygame.draw.line(cls.screen, SB_colors.black,
                              (x + i * px, y + 0),
                              (x + i * px, y + si * px))
-            pygame.draw.line(cls.screen, sb_colors.black,
+            pygame.draw.line(cls.screen, SB_colors.black,
                              (x + 0, y + i * px),
                              (x + si * px, y + i * px))
 
     @classmethod
-    def draw_text(cls, str, color=sb_colors.black, coord=None):
+    def draw_text(cls, str, color=SB_colors.black, coord=None):
         if coord is None:
             coord = cls.pos_txt
-        cls.screen.fill(sb_colors.gray)
+        cls.screen.fill(SB_colors.gray)
         cls.draw_cells()
         cls.screen.blit(
             cls.font.render(str, False, color), (coord.x, coord.y))
@@ -213,7 +202,7 @@ class SeaBattle:
     @classmethod
     def draw_text_big(cls, str, x, y):
         cls.screen.blit(
-            cls.font_big.render(str, False, sb_colors.black), (x, y))
+            cls.font_big.render(str, False, SB_colors.black), (x, y))
 
 
 if __name__ == "__main__":

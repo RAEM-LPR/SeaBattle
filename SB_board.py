@@ -4,12 +4,12 @@ from SB_ship import Ship
 from SB_ship import ShipState
 
 
-class ship_set_result:
-    ok = 0
-    incorrect = 1
-    out_of_pole = 2
-    overflow = 3
-    cant_pos = 4
+class Ship_set_result:
+    OK = 0
+    INCORRECT = 1
+    OUT_OF_POLE = 2
+    OVERCOUNT = 3
+    CANT_SET = 4
 
 
 class GameBoard:
@@ -30,7 +30,8 @@ class GameBoard:
 
     pos = None  # положение на экране
 
-    def __init__(self):
+    def __init__(self, sener):
+        self.senderName = sener  # поле игрока или противника
         self.Generate()
 
     def Generate(self):
@@ -43,15 +44,15 @@ class GameBoard:
         self.hidden = True
         for i in range(self._size):
             for j in range(self._size):
-                self._cells[i][j].SetState(CellState.Empty)
+                self._cells[i][j].SetState(CellState.EMPTY)
 
     def getCell(self, i, j):
         if not self.hidden:
             return self._cells[i][j].GetState()
         else:
             state = self._cells[i][j].GetState()
-            if state == CellState.Deck:
-                return CellState.Empty
+            if state == CellState.DECK:
+                return CellState.EMPTY
             else:
                 return state
 
@@ -59,23 +60,23 @@ class GameBoard:
         for k in range(len(self._ships)):
             if self._ships[k].isOn(i, j):
                 return self._ships[k].GetState()
-        return ShipState.Safe
+        return ShipState.SAFE
 
     def try_set_ship(self, x, y, r, h, idx):
         if r < 1 or r > 4 or h > 1 or h < 0:
-            return ship_set_result.incorrect
+            return Ship_set_result.INCORRECT
         elif (x + (r if h else 0) - 1) >= self._size \
                 or (y + (0 if h else r) - 1) >= self._size \
                 or x < 0 or y < 0:
-            return ship_set_result.out_of_pole
+            return Ship_set_result.OUT_OF_POLE
         elif not self.check_counter(r):
-            return ship_set_result.overflow
+            return Ship_set_result.OVERCOUNT
         else:
             if not self._ships[idx % 10].Create(self, r, x, y, h):
-                return ship_set_result.cant_pos
+                return Ship_set_result.CANT_SET
             else:
                 self.change_counter(r)
-                return ship_set_result.ok
+                return Ship_set_result.OK
 
     def setPos(self, xy):
         self.pos = xy
@@ -96,13 +97,13 @@ class GameBoard:
                 return True
             else:
                 # иначе засчитываем промах
-                self._cells[x][y].SetState(CellState.Miss)
+                self._cells[x][y].SetState(CellState.MISS)
         return False
 
     # обход всех кораблей
     def AllShipsDestroyed(self):
         for i in range(self._shipsCount):
-            if self._ships[i].GetState() != ShipState.Destroyed:
+            if self._ships[i].GetState() != ShipState.DESTROYED:
                 return False  # если хотя бы один не уничтожен, вернем false
         return True
 
@@ -119,8 +120,8 @@ class GameBoard:
 
     # функция возвращает является ли клетка палубой
     def IsDeck(self, x, y):
-        return self._cells[x][y].GetState() == CellState.Deck \
-            or self._cells[x][y].GetState() == CellState.HitDeck
+        return self._cells[x][y].GetState() == CellState.DECK \
+            or self._cells[x][y].GetState() == CellState.HIT_DECK
 
     def hide(self):
         self.hidden = True
@@ -135,7 +136,8 @@ class GameTable:
 
     pos = None  # положение на экране
 
-    def __init__(self):
+    def __init__(self, sener):
+        self.senderName = sener
         self.Generate()
 
     def Generate(self):
@@ -144,7 +146,7 @@ class GameTable:
                        for __ in range(self._size)]
         for i in range(self._size):
             for j in range(self._size):
-                self._cells[i][j].SetState(CellState.Empty)
+                self._cells[i][j].SetState(CellState.EMPTY)
 
     def setPos(self, xy):
         self.pos = xy
@@ -156,16 +158,16 @@ class GameTable:
         self._cells[x][y].SetState(state)
 
     def kill(self, x, y, xy=[[-1, -1]]):
-        self.SetState(x, y, CellState.HitDeck)
+        self.SetState(x, y, CellState.HIT_DECK)
         for c in xy:
             if x == c[0] and y == c[1]:
                 return
         for i in range(max(x - 1, 0), min(x + 2, self._size)):
             for j in range(max(y - 1, 0), min(y + 2, self._size)):
-                if self.getCell(i, j) == CellState.HitDeck:
+                if self.getCell(i, j) == CellState.HIT_DECK:
                     self.kill(i, j, xy + [[x, y]])
-                elif self.getCell(i, j) == CellState.Empty:
-                    self.SetState(i, j, CellState.Miss)
+                elif self.getCell(i, j) == CellState.EMPTY:
+                    self.SetState(i, j, CellState.MISS)
 
 
 if __name__ == "__main__":
