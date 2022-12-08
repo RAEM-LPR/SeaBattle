@@ -14,6 +14,7 @@ from SB_helpers import SB_pair
     l - lose
     sx,y - палуба на x,y
     q - конец передачи палуб
+    Q - готовность
 # x,y,n - числа
 # не отправляем новый запрос, пока не обработали старый
 
@@ -42,6 +43,7 @@ class SB_link:
     hisName = ''
 
     began = False
+    slaveReady = False
 
     @classmethod
     def begin(cls, isMaster):
@@ -52,6 +54,7 @@ class SB_link:
         cls.his_attacked_deck = None
         cls.my_attacked_deck = None
         cls.decks_tx_ended = False
+        cls.slaveReady = False
 
         configs = []
         with open(cls.configfile) as file:
@@ -117,6 +120,10 @@ class SB_link:
         SB_link.send('q')
 
     @classmethod
+    def sendReadyFlag(cls):
+        SB_link.send('Q')
+
+    @classmethod
     def lose(cls):
         SB_link.send('l')
 
@@ -134,6 +141,8 @@ class SB_link:
             SB_link.isHeLose = True
         elif str[0] == 'q':
             SB_link.decks_tx_ended = True
+        elif str[0] == 'Q':
+            SB_link.slaveReady = True
 
     '''@classmethod
     def my_publish_callback(cls, envelope, status):

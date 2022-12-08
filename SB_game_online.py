@@ -111,7 +111,10 @@ class Online_game(IGame):
                 self.set_ships(x, y, sender)
         elif self.getMotion() == SB_motion.MY:
             if sender == self.SENDER_HISBOARD:
-                self.attack_him(x, y)
+                if SB_link.slaveReady:
+                    self.attack_him(x, y)
+                else:
+                    self.draw_text(SB_strings.waittoset)
 
     def set_ships(self, x, y, sender):
         if self.firstset < GameBoard._shipsCount:
@@ -125,6 +128,8 @@ class Online_game(IGame):
             self.draw_text(SB_strings.prepare_done)
             self.firstset += 1
             self.setMotion(SB_motion.MY if self.isMaster else SB_motion.HIS)
+            if not self.isMaster:
+                SB_link.sendReadyFlag()
 
     def position_result_handler(self, result):
         if result == Ship_set_result.OK:
