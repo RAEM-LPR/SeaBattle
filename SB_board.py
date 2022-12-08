@@ -30,9 +30,6 @@ class IBoard():
 
     pos = None  # положение на экране
 
-    def Generate(self):
-        ...
-
     # отметить клетки, где точно нет кораблей (по диагонали от палубы)
     def setMissDiag(self, x, y):
         if x - 1 >= 0:
@@ -51,16 +48,12 @@ class IBoard():
 
     def SetState(self, x, y, state):
         self._cells[x][y].SetState(state)
-    
-    def getCell(self, i, j):
-        ...
 
 
 class GameBoard(IBoard):
 
     def __init__(self, sener):
         self.senderName = sener  # поле игрока или противника
-        self._shipsCountAll = 2 * self._shipsCount + 1
         self.Generate()
 
     def Generate(self):
@@ -155,9 +148,10 @@ class GameBoard(IBoard):
 
 class GameTable(IBoard):
 
+    _shipsCountAll = IBoard._shipsCount + 1
+
     def __init__(self, sener):
         self.senderName = sener
-        self._shipsCountAll = self._shipsCount + 1
         self.Generate()
 
     def Generate(self):
