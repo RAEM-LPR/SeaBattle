@@ -54,7 +54,7 @@ class SB_link:
         cls.his_attacked_deck = None
         cls.my_attacked_deck = None
         cls.decks_tx_ended = False
-        cls.slaveReady = False
+        cls.slaveReady = not isMaster
 
         configs = []
         with open(cls.configfile) as file:

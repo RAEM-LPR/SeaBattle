@@ -1,2 +1,2 @@
 @echo off
-python SB_main.py
+py SB_main.py
