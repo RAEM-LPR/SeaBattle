@@ -92,7 +92,8 @@ class SeaBattle:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return True
+                    return False  # True
+                    # False = Выходим в меню, не закрывая приложение
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if SeaBattle.game.gameOver:
                         return False

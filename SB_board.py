@@ -184,7 +184,7 @@ class GameTable:
                     self.SetState(i, j, CellState.MISS)
 
     def damage(self, x, y):
-        self.SetState(x, y, CellState.MISS)
+        self.SetState(x, y, CellState.HIT_DECK)
         self.setMissDiag(x, y)
 
     # отметить клетки, где точно нет кораблей (по диагонали от палубы)
