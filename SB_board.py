@@ -12,7 +12,7 @@ class Ship_set_result:
     CANT_SET = 4
 
 
-class GameBoard:
+class IBoard():
     _size = 10  # размер игорового поля
     _4DeckShipCount = 1  # число 4-х палубных
     _3DeckShipCount = 2  # число 3-х палубных
@@ -30,8 +30,37 @@ class GameBoard:
 
     pos = None  # положение на экране
 
+    def Generate(self):
+        ...
+
+    # отметить клетки, где точно нет кораблей (по диагонали от палубы)
+    def setMissDiag(self, x, y):
+        if x - 1 >= 0:
+            if y - 1 >= 0:
+                self.SetState(x - 1, y - 1, CellState.MISS)
+            if y + 1 < self._size:
+                self.SetState(x - 1, y + 1, CellState.MISS)
+        if x + 1 < self._size:
+            if y - 1 >= 0:
+                self.SetState(x + 1, y - 1, CellState.MISS)
+            if y + 1 < self._size:
+                self.SetState(x + 1, y + 1, CellState.MISS)
+
+    def setPos(self, xy):
+        self.pos = xy
+
+    def SetState(self, x, y, state):
+        self._cells[x][y].SetState(state)
+    
+    def getCell(self, i, j):
+        ...
+
+
+class GameBoard(IBoard):
+
     def __init__(self, sener):
         self.senderName = sener  # поле игрока или противника
+        self._shipsCountAll = 2 * self._shipsCount + 1
         self.Generate()
 
     def Generate(self):
@@ -78,9 +107,6 @@ class GameBoard:
                 self.change_counter(r)
                 return Ship_set_result.OK
 
-    def setPos(self, xy):
-        self.pos = xy
-
     def GetCount(self):
         return self._size**2
 
@@ -101,19 +127,6 @@ class GameBoard:
                 self._cells[x][y].SetState(CellState.MISS)
         return False
 
-    # отметить клетки, где точно нет кораблей (по диагонали от палубы)
-    def setMissDiag(self, x, y):
-        if x - 1 >= 0:
-            if y - 1 >= 0:
-                self.SetState(x - 1, y - 1, CellState.MISS)
-            if y + 1 < self._size:
-                self.SetState(x - 1, y + 1, CellState.MISS)
-        if x + 1 < self._size:
-            if y - 1 >= 0:
-                self.SetState(x + 1, y - 1, CellState.MISS)
-            if y + 1 < self._size:
-                self.SetState(x + 1, y + 1, CellState.MISS)
-
     # обход всех кораблей
     def AllShipsDestroyed(self):
         for i in range(self._shipsCount):
@@ -128,10 +141,6 @@ class GameBoard:
     def change_counter(self, size):
         self.count_of_ships[size - 1] -= 1
 
-    # функция установки статуса клетки игровго поля
-    def SetState(self, x, y, state):
-        self._cells[x][y].SetState(state)
-
     # функция возвращает является ли клетка палубой
     def IsDeck(self, x, y):
         return self._cells[x][y].GetState() == CellState.DECK \
@@ -144,14 +153,11 @@ class GameBoard:
         self.hidden = False
 
 
-class GameTable:
-    _size = GameBoard._size
-    _shipsCountAll = GameBoard._shipsCount + 1
-
-    pos = None  # положение на экране
+class GameTable(IBoard):
 
     def __init__(self, sener):
         self.senderName = sener
+        self._shipsCountAll = self._shipsCount + 1
         self.Generate()
 
     def Generate(self):
@@ -162,14 +168,9 @@ class GameTable:
             for j in range(self._size):
                 self._cells[i][j].SetState(CellState.EMPTY)
 
-    def setPos(self, xy):
-        self.pos = xy
-
     def getCell(self, i, j):
         return self._cells[i][j].GetState()
 
-    def SetState(self, x, y, state):
-        self._cells[x][y].SetState(state)
 
     def kill(self, x, y, xy=[[-1, -1]]):
         self.SetState(x, y, CellState.HIT_DECK)
@@ -186,19 +187,6 @@ class GameTable:
     def damage(self, x, y):
         self.SetState(x, y, CellState.HIT_DECK)
         self.setMissDiag(x, y)
-
-    # отметить клетки, где точно нет кораблей (по диагонали от палубы)
-    def setMissDiag(self, x, y):
-        if x - 1 >= 0:
-            if y - 1 >= 0:
-                self.SetState(x - 1, y - 1, CellState.MISS)
-            if y + 1 < self._size:
-                self.SetState(x - 1, y + 1, CellState.MISS)
-        if x + 1 < self._size:
-            if y - 1 >= 0:
-                self.SetState(x + 1, y - 1, CellState.MISS)
-            if y + 1 < self._size:
-                self.SetState(x + 1, y + 1, CellState.MISS)
 
 
 if __name__ == "__main__":
