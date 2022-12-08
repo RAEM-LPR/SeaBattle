@@ -56,9 +56,8 @@ class Online_game(IGame):
                                        CellState.MISS)
             else:
                 if SB_link.attack_result == SB_attack_result.DAMAGE:
-                    self.hisBoard.SetState(SB_link.his_attacked_deck.x,
-                                           SB_link.his_attacked_deck.y,
-                                           CellState.HIT_DECK)
+                    self.hisBoard.damage(SB_link.his_attacked_deck.x,
+                                         SB_link.his_attacked_deck.y)
                 elif SB_link.attack_result == SB_attack_result.KILL:
                     self.hisBoard.kill(SB_link.his_attacked_deck.x,
                                        SB_link.his_attacked_deck.y)
@@ -149,12 +148,14 @@ class Online_game(IGame):
             return
         self.sendShips()
         self.gameOver = True
+        self.draw_text(SB_strings.win_link)
 
     def lose(self):
         if SB_link.isILose:
             return
         SB_link.lose()
         SB_link.isILose = True
+        self.draw_text(SB_strings.lose_link)
 
     def sendShips(self):
         hideDecs = []

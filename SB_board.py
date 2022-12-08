@@ -94,11 +94,25 @@ class GameBoard:
             if self._ships[i].TryHit(x, y):
                 # если попадаем - стреляем по кораблю
                 self._ships[i].Shoot(self, x, y)
+                self.setMissDiag(x, y)
                 return True
             else:
                 # иначе засчитываем промах
                 self._cells[x][y].SetState(CellState.MISS)
         return False
+
+    # отметить клетки, где точно нет кораблей (по диагонали от палубы)
+    def setMissDiag(self, x, y):
+        if x - 1 >= 0:
+            if y - 1 >= 0:
+                self.SetState(x - 1, y - 1, CellState.MISS)
+            if y + 1 < self._size:
+                self.SetState(x - 1, y + 1, CellState.MISS)
+        if x + 1 < self._size:
+            if y - 1 >= 0:
+                self.SetState(x + 1, y - 1, CellState.MISS)
+            if y + 1 < self._size:
+                self.SetState(x + 1, y + 1, CellState.MISS)
 
     # обход всех кораблей
     def AllShipsDestroyed(self):
@@ -168,6 +182,23 @@ class GameTable:
                     self.kill(i, j, xy + [[x, y]])
                 elif self.getCell(i, j) == CellState.EMPTY:
                     self.SetState(i, j, CellState.MISS)
+
+    def damage(self, x, y):
+        self.SetState(x, y, CellState.MISS)
+        self.setMissDiag(x, y)
+
+    # отметить клетки, где точно нет кораблей (по диагонали от палубы)
+    def setMissDiag(self, x, y):
+        if x - 1 >= 0:
+            if y - 1 >= 0:
+                self.SetState(x - 1, y - 1, CellState.MISS)
+            if y + 1 < self._size:
+                self.SetState(x - 1, y + 1, CellState.MISS)
+        if x + 1 < self._size:
+            if y - 1 >= 0:
+                self.SetState(x + 1, y - 1, CellState.MISS)
+            if y + 1 < self._size:
+                self.SetState(x + 1, y + 1, CellState.MISS)
 
 
 if __name__ == "__main__":

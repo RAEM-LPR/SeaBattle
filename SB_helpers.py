@@ -17,6 +17,8 @@ class SB_strings:
     letsbegin = "Расставьте свои корабли"
     win = "Первый игрок выиграл"
     lose = "Второй игрок выиграл"
+    win_link = "Вы выиграли"
+    lose_link = "Вы проиграли"
 
 
 class SB_colors:
